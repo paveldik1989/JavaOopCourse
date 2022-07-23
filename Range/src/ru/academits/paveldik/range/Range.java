@@ -30,6 +30,6 @@ public class Range {
     }
 
     public boolean isInside(double point) {
-        return point  >= from && point <= to;
+        return point >= from && point <= to;
     }
 }

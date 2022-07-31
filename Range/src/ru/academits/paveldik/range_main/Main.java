@@ -1,4 +1,4 @@
-package ru.academits.paveldik.main;
+package ru.academits.paveldik.range_main;
 
 import ru.academits.paveldik.range.Range;
 

@@ -32,4 +32,44 @@ public class Range {
     public boolean isInside(double point) {
         return point >= from && point <= to;
     }
+
+    public Range getIntersection(Range range) {
+        if (to <= range.from || range.to <= from) {
+            return null;
+        }
+
+        return new Range(Math.max(from, range.from), Math.min(to, range.to));
+    }
+
+    public Range[] getUnion(Range range) {
+        if (to < range.from || range.to < from) {
+            return new Range[]{new Range(from, to), new Range(range.from, range.to)};
+        }
+
+        return new Range[]{new Range(Math.min(from, range.from), Math.max(to, range.to))};
+    }
+
+    public Range[] getDifference(Range range) {
+        if (from >= range.from) {
+            if (range.to >= to) {
+                return new Range[0];
+            }
+
+            if (range.to >= from) {
+                return new Range[]{new Range(range.to, to)};
+            }
+
+            return new Range[]{new Range(from, to)};
+        }
+
+        if (range.from <= to) {
+            if (range.to >= to) {
+                return new Range[]{new Range(from, range.from)};
+            }
+
+            return new Range[]{new Range(from, range.from), new Range(range.to, to)};
+        }
+
+        return new Range[]{new Range(from, to)};
+    }
 }

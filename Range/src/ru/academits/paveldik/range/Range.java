@@ -72,4 +72,9 @@ public class Range {
 
         return new Range[]{new Range(from, to)};
     }
+
+    @Override
+    public String toString() {
+        return "(" + from + "; " + to + ")";
+    }
 }

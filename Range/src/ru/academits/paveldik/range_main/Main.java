@@ -4,47 +4,37 @@ import ru.academits.paveldik.range.Range;
 
 public class Main {
     public static void main(String[] args) {
-     /*   Range range1 = new Range(1, 2);
+        Range range1 = new Range(1, 4);
+        Range range2 = new Range(2, 3);
 
-        System.out.println(range1.getFrom());
-        System.out.println(range1.getTo());
-        System.out.println(range1.getLength());
-        System.out.println(range1.isInside(1.5));
+        System.out.println("Отрезок 1: " + range1);
+        System.out.println("Отрезок 2: " + range2);
 
-        range1.setTo(9);
-        range1.setFrom(7);
+        System.out.println("Пересечение: " + range1.getIntersection(range2));
 
-        System.out.println(range1.getFrom());
-        System.out.println(range1.getTo());
-        System.out.println(range1.isInside(1.5));
-*/
-        Range range2 = new Range(1, 4);
-        Range range3 = new Range(2, 3);
+        Range[] union = range1.getUnion(range2);
+        System.out.println("Объединение: " + rangesArrayToString(range1.getUnion(range2)));
 
-        Range rangeIntersection = range3.getIntersection(range3);
+        Range[] difference1 = range1.getDifference(range2);
+        System.out.println("Вычитание 1 - 2: " + rangesArrayToString(range1.getDifference(range2)));
 
-        System.out.print("Пересечение: " + rangeIntersection.getFrom() + "; " + rangeIntersection.getTo());
-        System.out.println();
+        Range[] difference2 = range2.getDifference(range1);
+        System.out.println("Вычитание 2 - 1: " + rangesArrayToString(range2.getDifference(range1)));
+    }
 
-        Range range4 = new Range(1, 2);
-        Range range5 = new Range(2, 4);
+    public static String rangesArrayToString(Range[] ranges) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('[');
 
-        Range[] rangesUnion;
-        rangesUnion = range4.getUnion(range5);
+        if (ranges.length > 0) {
+            for (Range range : ranges) {
+                stringBuilder.append(range).append(", ");
+            }
 
-        for (Range range : rangesUnion) {
-            System.out.println("Объединение: " + range.getFrom() + "; " + range.getTo());
-            System.out.println();
+            stringBuilder.delete(stringBuilder.length() - 2, stringBuilder.length());
         }
 
-        Range range6 = new Range(1, 4);
-        Range range7 = new Range(2, 3);
-
-        Range[] rangesDifference;
-        rangesDifference = range6.getDifference(range7);
-
-        for (Range range : rangesDifference) {
-            System.out.println("Вычитание: " + range.getFrom() + "; " + range.getTo());
-        }
+        stringBuilder.append(']');
+        return stringBuilder.toString();
     }
 }

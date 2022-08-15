@@ -1,5 +1,7 @@
 package ru.academits.paveldik.shapes_main;
 
+import ru.academits.paveldik.comparators.AreaComparator;
+import ru.academits.paveldik.comparators.PerimeterComparator;
 import ru.academits.paveldik.shapes.*;
 
 import java.util.Arrays;
@@ -38,27 +40,33 @@ public class Main {
         System.out.println("Периметр: " + circle.getPerimeter());
         System.out.println();
 */
-        Shape[] shapes = new Shape[]{new Square(2), new Square(9),
-                new Square(3), new Triangle(0, 0, 1, 0, 0.5, 1),
-                new Rectangle(1, 100), new Circle(1)};
+        Shape[] shapes = {
+                new Square(2),
+                new Square(9),
+                new Square(3),
+                new Triangle(0, 0, 1, 0, 0.5, 1),
+                new Rectangle(1, 100),
+                new Circle(1)
+        };
 
         // System.out.println(Arrays.deepToString(shapes));
 
-        Arrays.sort(shapes, new MaxAreaComparator());
+        Arrays.sort(shapes, new AreaComparator());
 
         System.out.println("Площадь самой большой фигуры: " + shapes[shapes.length - 1].getArea());
         System.out.println(shapes[shapes.length - 1]);
 
-        Arrays.sort(shapes, new MaxPerimeterComparator());
+        Arrays.sort(shapes, new PerimeterComparator());
         System.out.println("Периметр второй по величине фигуры: " + shapes[shapes.length - 2].getPerimeter());
 
         Shape square1 = new Square(5);
         Shape square2 = new Square(5);
-        System.out.println(square1.equals(square2));
+        System.out.println("Равенство квадрата 1 и 2: " + square1.equals(square2));
 
         Shape triangle = new Triangle(0, 0, 1, 0, 0.5, 1);
         System.out.println(triangle);
-        System.out.println(triangle.hashCode());
+        System.out.println("Хэш-код треугольника: " + triangle.hashCode());
+        System.out.println("Периметр треугольника: " + triangle.getPerimeter());
 
       /*  for (Shape e : shapes) {
             System.out.println(e.hashCode());

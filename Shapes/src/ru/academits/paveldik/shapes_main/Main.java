@@ -1,7 +1,7 @@
 package ru.academits.paveldik.shapes_main;
 
-import ru.academits.paveldik.comparators.AreaComparator;
-import ru.academits.paveldik.comparators.PerimeterComparator;
+import ru.academits.paveldik.shapes_comparators.AreaComparator;
+import ru.academits.paveldik.shapes_comparators.PerimeterComparator;
 import ru.academits.paveldik.shapes.*;
 
 import java.util.Arrays;

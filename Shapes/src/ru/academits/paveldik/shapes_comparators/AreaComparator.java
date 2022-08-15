@@ -1,4 +1,4 @@
-package ru.academits.paveldik.comparators;
+package ru.academits.paveldik.shapes_comparators;
 
 import ru.academits.paveldik.shapes.Shape;
 

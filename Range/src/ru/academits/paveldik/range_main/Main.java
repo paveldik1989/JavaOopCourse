@@ -14,13 +14,9 @@ public class Main {
 
         System.out.println("Пересечение: " + range1.getIntersection(range2));
 
-        System.out.println("Объединение: " + convertRangesArrayToString(range1.getUnion(range2)));
+        System.out.println("Объединение: " + Arrays.toString(range1.getUnion(range2)));
 
-        System.out.println("Вычитание 1 - 2: " + convertRangesArrayToString(range1.getDifference(range2)));
-        System.out.println("Вычитание 2 - 1: " + convertRangesArrayToString(range2.getDifference(range1)));
-    }
-
-    public static String convertRangesArrayToString(Range[] ranges) {
-        return Arrays.toString(ranges);
+        System.out.println("Вычитание 1 - 2: " + Arrays.toString(range1.getDifference(range2)));
+        System.out.println("Вычитание 2 - 1: " + Arrays.toString(range2.getDifference(range1)));
     }
 }

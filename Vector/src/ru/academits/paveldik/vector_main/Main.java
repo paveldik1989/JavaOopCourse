@@ -2,7 +2,7 @@ package ru.academits.paveldik.vector_main;
 
 import ru.academits.paveldik.vector.Vector;
 
-import static ru.academits.paveldik.vector.Vector.getDotProduct;
+import static ru.academits.paveldik.vector.Vector.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -24,12 +24,14 @@ public class Main {
         System.out.println("Сложение, вычитание умножение и т.п. операции: ");
         System.out.println("Размер: " + vector4.getSize());
         Vector vector5 = new Vector(new double[]{1, 1, 1});
-        Vector vector6 = new Vector(new double[]{1, 0, 0, 7, 0, 1});
+        Vector vector6 = new Vector(new double[]{0, 0, 0, 1, 1, 1});
 
-        vector5.getSum(vector6);
+        System.out.println("Сложение статическое: " + getSum(vector5, vector6));
+        vector5.add(vector6);
         System.out.println("Сложение: " + vector5);
 
-        vector5.getDifference(vector6);
+        System.out.println("Вычитание статическое: " + getDifference(vector5, vector6));
+        vector5.subtract(vector6);
         System.out.println("Вычитание: " + vector5);
 
         vector5.multiplyByScalar(2);
@@ -40,8 +42,8 @@ public class Main {
 
         System.out.println("Длина: " + vector5.getLength());
         System.out.println("Скалярное произведение: " + getDotProduct(vector5, vector6));
-
         System.out.println();
+
         System.out.println("Геттер, сеттер, equals, hashCode");
         System.out.println("Получение компонента вектора по индексу: " + vector6.getComponent(3));
 
@@ -50,7 +52,7 @@ public class Main {
 
         Vector vector7 = new Vector(new double[]{1, 1, 1});
 
-        System.out.println("Проверка на равенство: " + vector5.equals(vector6));
+        System.out.println("Проверка на равенство: " + vector1.equals(vector2));
 
         System.out.println("Хэшкод: " + vector5.hashCode());
         System.out.println("Хэшкод: " + vector6.hashCode());

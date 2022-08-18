@@ -14,7 +14,7 @@ public class Vector {
     }
 
     public Vector(Vector vector) {
-        components = Arrays.copyOf(vector.components, vector.getSize());
+        components = Arrays.copyOf(vector.components, vector.components.length);
     }
 
     public Vector(double[] components) {
@@ -33,25 +33,75 @@ public class Vector {
         this.components = Arrays.copyOf(components, size);
     }
 
-    public static Vector getSum(Vector vector1, Vector vector2) {
-        vector1.getSum(vector2);
-        return vector1;
+    public int getSize() {
+        return components.length;
     }
 
-    public static double getDotProduct(Vector vector1, Vector vector2) {
-        int minSize = Math.min(vector1.getSize(), vector2.getSize());
-        double dotProduct = 0;
+    public double getComponent(int index) {
+        return components[index];
+    }
 
-        for (int i = 0; i < minSize; i++) {
-            dotProduct += vector1.components[i] * vector2.components[i];
+    public void setComponent(int index, double component) {
+        components[index] = component;
+    }
+
+    public void multiplyByScalar(double multiplier) {
+        for (int i = 0; i < components.length; i++) {
+            components[i] *= multiplier;
+        }
+    }
+
+    public void reverse() {
+        multiplyByScalar(-1);
+    }
+
+    public double getLength() {
+        double sum = 0;
+
+        for (double e : components) {
+            sum += e * e;
         }
 
-        return dotProduct;
+        return Math.sqrt(sum);
     }
 
-    public static Vector getDifference(Vector vector1, Vector vector2) {
-        vector1.getDifference(vector2);
-        return vector1;
+    public void add(Vector vector) {
+        if (components.length >= vector.components.length) {
+            for (int i = 0; i < vector.components.length; i++) {
+                components[i] += vector.components[i];
+            }
+        } else {
+            double[] componentsSum = new double[vector.components.length];
+
+            for (int i = 0; i < components.length; i++) {
+                componentsSum[i] = components[i] + vector.components[i];
+            }
+
+            System.arraycopy(vector.components, components.length, componentsSum,
+                    components.length, vector.components.length - components.length);
+
+            components = componentsSum;
+        }
+    }
+
+    public void subtract(Vector vector) {
+        if (components.length >= vector.components.length) {
+            for (int i = 0; i < vector.components.length; i++) {
+                components[i] -= vector.components[i];
+            }
+        } else {
+            double[] componentsDifference = new double[vector.components.length];
+
+            for (int i = 0; i < components.length; i++) {
+                componentsDifference[i] = components[i] - vector.components[i];
+            }
+
+            for (int i = components.length; i < vector.components.length; i++) {
+                componentsDifference[i] = -vector.components[i];
+            }
+
+            components = componentsDifference;
+        }
     }
 
     @Override
@@ -80,94 +130,34 @@ public class Vector {
         }
 
         Vector vector = (Vector) o;
-
-        if (vector.getSize() == getSize()) {
-            for (int i = 0; i < getSize(); i++) {
-                if (vector.components[i] != components[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
+        return Arrays.equals(components, vector.components);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 37;
-        int hash = 1;
-        for (int i = 0; i < getSize(); i++) {
-            hash = prime * hash + Double.hashCode(components[i]);
+        return Arrays.hashCode(components);
+    }
+
+    public static Vector getSum(Vector vector1, Vector vector2) {
+        Vector vector3 = new Vector(vector1);
+        vector3.add(vector2);
+        return vector3;
+    }
+
+    public static Vector getDifference(Vector vector1, Vector vector2) {
+        Vector vector3 = new Vector(vector1);
+        vector3.subtract(vector2);
+        return vector3;
+    }
+
+    public static double getDotProduct(Vector vector1, Vector vector2) {
+        int minSize = Math.min(vector1.components.length, vector2.components.length);
+        double dotProduct = 0;
+
+        for (int i = 0; i < minSize; i++) {
+            dotProduct += vector1.components[i] * vector2.components[i];
         }
 
-        return hash;
-    }
-
-    public int getSize() {
-        return components.length;
-    }
-
-    public void getSum(Vector vector) {
-        int maxSize = Math.max(getSize(), vector.getSize());
-        double[] componentsSum = new double[maxSize];
-
-        for (int i = 0; i < maxSize; i++) {
-            if (i < getSize()) {
-                componentsSum[i] = components[i];
-            }
-
-            if (i < vector.getSize()) {
-                componentsSum[i] += vector.components[i];
-            }
-        }
-
-        components = componentsSum;
-    }
-
-    public void getDifference(Vector vector) {
-        int maxSize = Math.max(getSize(), vector.getSize());
-        double[] componentsDifference = new double[maxSize];
-
-        for (int i = 0; i < maxSize; i++) {
-            if (i < getSize()) {
-                componentsDifference[i] = components[i];
-            }
-
-            if (i < vector.getSize()) {
-                componentsDifference[i] -= vector.components[i];
-            }
-        }
-
-        components = componentsDifference;
-    }
-
-    public void multiplyByScalar(double multiplier) {
-        for (int i = 0; i < getSize(); i++) {
-            components[i] *= multiplier;
-        }
-    }
-
-    public void reverse() {
-        multiplyByScalar(-1);
-    }
-
-    public double getLength() {
-        double quadraticSum = 0;
-
-        for (int i = 0; i < getSize(); i++) {
-            quadraticSum += components[i] * components[i];
-        }
-
-        return Math.sqrt(quadraticSum);
-    }
-
-    public double getComponent(int index) {
-        return components[index];
-    }
-
-    public void setComponent(int index, double component) {
-        components[index] = component;
+        return dotProduct;
     }
 }

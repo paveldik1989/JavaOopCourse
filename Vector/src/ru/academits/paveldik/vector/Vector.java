@@ -65,7 +65,7 @@ public class Vector {
         return Math.sqrt(sum);
     }
 
-    public void add(Vector vector) {
+  /*  public void add(Vector vector) {
         if (components.length >= vector.components.length) {
             for (int i = 0; i < vector.components.length; i++) {
                 components[i] += vector.components[i];
@@ -80,6 +80,52 @@ public class Vector {
             System.arraycopy(vector.components, components.length, componentsSum,
                     components.length, vector.components.length - components.length);
 
+            components = componentsSum;
+        }
+    } */
+
+   /* public void add(Vector vector) {
+          double[] componentsSum = new double[Math.max(components.length, vector.components.length)];
+
+            for (int i = 0; i < Math.min(components.length, vector.components.length); i++) {
+                componentsSum[i] = components[i] + vector.components[i];
+            }
+
+            if (components.length < vector.components.length){
+                System.arraycopy(vector.components, components.length, componentsSum,
+                        components.length,vector.components.length - components.length);
+            }else{
+                System.arraycopy(components, vector.components.length, componentsSum,
+                        vector.components.length,components.length - vector.components.length);
+            }
+
+        components = componentsSum;
+    } */
+
+         /* public void add(Vector vector) {
+        double[] componentsSum;
+
+        if(components.length >= vector.components.length){
+            componentsSum = Arrays.copyOf(components, components.length);
+        }else{
+            componentsSum = Arrays.copyOf(vector.components, vector.components.length);
+        }
+
+        for (int i = 0; i < Math.min(components.length, vector.components.length); i++) {
+            componentsSum[i] = components[i] + vector.components[i];
+        }
+
+        components = componentsSum;
+    } */
+
+    public void add(Vector vector) {
+        for (int i = 0; i < Math.min(components.length, vector.components.length); i++) {
+            components[i] += vector.components[i];
+        }
+
+        if (components.length < vector.components.length){
+            double[] componentsSum = Arrays.copyOf(vector.components, vector.components.length);
+            System.arraycopy(components,0,componentsSum,0,components.length);
             components = componentsSum;
         }
     }
@@ -139,15 +185,15 @@ public class Vector {
     }
 
     public static Vector getSum(Vector vector1, Vector vector2) {
-        Vector vector3 = new Vector(vector1);
-        vector3.add(vector2);
-        return vector3;
+        Vector vectorSum = new Vector(vector1);
+        vectorSum.add(vector2);
+        return vectorSum;
     }
 
     public static Vector getDifference(Vector vector1, Vector vector2) {
-        Vector vector3 = new Vector(vector1);
-        vector3.subtract(vector2);
-        return vector3;
+        Vector vectorDifference = new Vector(vector1);
+        vectorDifference.subtract(vector2);
+        return vectorDifference;
     }
 
     public static double getDotProduct(Vector vector1, Vector vector2) {

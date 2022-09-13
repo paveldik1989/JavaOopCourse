@@ -1,48 +1,46 @@
 package ru.academits.paveldik.array_list_home;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Arrays;
 
 public class ArrayListHome {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         ArrayList<String> stringsList = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new FileInputStream("input.txt"))) {
-            while (scanner.hasNextLine()) {
-                stringsList.add(scanner.nextLine());
+        String line;
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader("input.txt"))) {
+            while ((line = bufferedReader.readLine()) != null) {
+                stringsList.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Прочитанные строки  из файла: " + stringsList);
+
+        Integer[] numbersArray = {2, 4, 6, 8, 10, 12, 5, 5, 2, 5};
+
+        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(numbersArray));
+
+        System.out.println("Исходный лист чисел: " + numbers);
+
+        for (int i = numbers.size() - 1; i >= 0; i--) {
+            if (numbers.get(i) % 2 == 0) {
+                numbers.remove(i);
             }
         }
 
-        System.out.println(stringsList);
+        System.out.println("Лист чисел после удаления четных чисел: " + numbers);
 
-        ArrayList<Integer> integers = new ArrayList<>();
-        integers.add(1);
-        integers.add(2);
-        integers.add(3);
-        integers.add(3);
-        integers.add(4);
-        integers.add(5);
-        integers.add(5);
-        integers.add(2);
-        integers.add(5);
+        ArrayList<Integer> numbersWithoutDuplicates = new ArrayList<>(numbers.size());
 
-        for (int i = 0; i < integers.size(); i++) {
-            if (integers.get(i) % 2 == 0) {
-                integers.remove(i);
+        for (Integer integer : numbers) {
+            if (!numbersWithoutDuplicates.contains(integer)) {
+                numbersWithoutDuplicates.add(integer);
             }
         }
 
-        System.out.println(integers);
-
-        ArrayList<Integer> integersWithoutDuplicates = new ArrayList<>();
-
-        for (Integer integer : integers) {
-            if (!integersWithoutDuplicates.contains(integer)) {
-                integersWithoutDuplicates.add(integer);
-            }
-        }
-
-        System.out.println(integersWithoutDuplicates);
+        System.out.println("Лист чисел после удаления дубликатов: " + numbersWithoutDuplicates);
     }
 }

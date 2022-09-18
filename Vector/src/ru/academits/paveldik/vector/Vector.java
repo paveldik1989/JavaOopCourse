@@ -56,6 +56,10 @@ public class Vector {
         return dotProduct;
     }
 
+    public double[] getComponents() {
+        return components;
+    }
+
     public int getSize() {
         return components.length;
     }

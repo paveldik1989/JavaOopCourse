@@ -57,7 +57,7 @@ public class Vector {
     }
 
     public double[] getComponents() {
-        return components;
+        return Arrays.copyOf(components, components.length);
     }
 
     public int getSize() {

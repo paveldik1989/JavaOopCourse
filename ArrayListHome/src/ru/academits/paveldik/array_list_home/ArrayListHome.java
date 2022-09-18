@@ -6,24 +6,27 @@ import java.util.Arrays;
 
 public class ArrayListHome {
     public static void main(String[] args) {
-        ArrayList<String> stringsList = new ArrayList<>();
-        String line;
+         ArrayList<String> lines = new ArrayList<>();
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("input.txt"))) {
+            String line;
+
             while ((line = bufferedReader.readLine()) != null) {
-                stringsList.add(line);
+                lines.add(line);
             }
+        } catch (FileNotFoundException e) {
+            System.err.println("Файл input.txt не найден.");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Ошибка ввода-вывода.");
         }
 
-        System.out.println("Прочитанные строки  из файла: " + stringsList);
+        System.out.println("Прочитанные строки  из файла: " + lines);
 
         Integer[] numbersArray = {2, 4, 6, 8, 10, 12, 5, 5, 2, 5};
 
         ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(numbersArray));
 
-        System.out.println("Исходный лист чисел: " + numbers);
+        System.out.println("Исходный список чисел: " + numbers);
 
         for (int i = numbers.size() - 1; i >= 0; i--) {
             if (numbers.get(i) % 2 == 0) {
@@ -31,7 +34,7 @@ public class ArrayListHome {
             }
         }
 
-        System.out.println("Лист чисел после удаления четных чисел: " + numbers);
+        System.out.println("Список чисел после удаления четных чисел: " + numbers);
 
         ArrayList<Integer> numbersWithoutDuplicates = new ArrayList<>(numbers.size());
 
@@ -41,6 +44,6 @@ public class ArrayListHome {
             }
         }
 
-        System.out.println("Лист чисел после удаления дубликатов: " + numbersWithoutDuplicates);
+        System.out.println("Список чисел после удаления дубликатов: " + numbersWithoutDuplicates);
     }
 }

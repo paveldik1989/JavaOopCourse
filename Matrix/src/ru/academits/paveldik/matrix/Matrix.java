@@ -42,10 +42,6 @@ public class Matrix {
             }
         }
 
-        if (maxRowLength == 0) {
-            throw new IllegalArgumentException("Columns amount must be > 0. Columns amount is " + maxRowLength);
-        }
-
         this.rows = new Vector[rows.length];
 
         for (int i = 0; i < rows.length; i++) {
@@ -83,15 +79,15 @@ public class Matrix {
                             + matrix1.getColumnsAmount() + ". Matrix2 rows amount is " + matrix2.rows.length);
         }
 
-        Vector[] productRows = new Vector[matrix2.getColumnsAmount()];
+        double[][] components = new double[matrix1.rows.length][matrix2.getColumnsAmount()];
 
-        for (int i = 0; i < matrix2.getColumnsAmount(); i++) {
-            productRows[i] = matrix1.multiplyByVector(matrix2.getColumn(i));
+        for (int i = 0; i < matrix1.rows.length; i++) {
+            for (int j = 0; j < matrix2.getColumnsAmount(); j++) {
+                components[i][j] = Vector.getDotProduct(matrix1.rows[i], matrix2.getColumn(j));
+            }
         }
 
-        Matrix product = new Matrix(productRows);
-        product.transpose();
-        return product;
+        return new Matrix(components);
     }
 
     private double[][] getMatrixComponents() {
@@ -116,7 +112,10 @@ public class Matrix {
 
     public Vector getRow(int rowIndex) {
         if (rowIndex < 0) {
-            throw new ArrayIndexOutOfBoundsException("Row index cannot be < 0. Row index is " + rowIndex);
+            throw new IndexOutOfBoundsException("Row index cannot be < 0. Row index is " + rowIndex);
+        } else if (rowIndex > rows.length) {
+            throw new IndexOutOfBoundsException("Row index must be < than rows amount. Row index is " + rowIndex
+                    + ". Rows amount is " + rows.length);
         }
 
         return new Vector(rows[rowIndex]);
@@ -124,16 +123,16 @@ public class Matrix {
 
     public void setRow(int rowIndex, Vector row) {
         if (rowIndex < 0) {
-            throw new ArrayIndexOutOfBoundsException("Row index cannot be < 0. Row index is " + rowIndex);
+            throw new IndexOutOfBoundsException("Row index cannot be < 0. Row index is " + rowIndex);
         }
 
         if (rowIndex >= rows.length) {
-            throw new ArrayIndexOutOfBoundsException("Row index must be less than rows amount of the matrix. Row index is "
+            throw new IndexOutOfBoundsException("Row index must be less than rows amount of the matrix. Row index is "
                     + rowIndex + ". Rows amount of the matrix " + rows.length);
         }
 
         if (row.getSize() != getColumnsAmount()) {
-            throw new ArrayIndexOutOfBoundsException("Vector size must be equal to the columns amount of the matrix. Vector size is "
+            throw new IllegalArgumentException("Vector size must be equal to the columns amount of the matrix. Vector size is "
                     + row.getSize() + ". Columns amount is " + getColumnsAmount());
         }
 
@@ -142,11 +141,11 @@ public class Matrix {
 
     public Vector getColumn(int columnIndex) {
         if (columnIndex < 0) {
-            throw new ArrayIndexOutOfBoundsException("Column index cannot be < 0. Column index is " + columnIndex);
+            throw new IndexOutOfBoundsException("Column index cannot be < 0. Column index is " + columnIndex);
         }
 
         if (columnIndex >= getColumnsAmount()) {
-            throw new ArrayIndexOutOfBoundsException("Column index must be less than columns amount of a matrix. Column index is "
+            throw new IndexOutOfBoundsException("Column index must be less than columns amount of a matrix. Column index is "
                     + columnIndex + ". Columns amount is " + getColumnsAmount());
         }
 
@@ -215,10 +214,10 @@ public class Matrix {
     }
 
     private static void swapColumns(double[][] matrix, int column1Index, int column2Index) {
-        for (double[] e : matrix) {
-            double temp = e[column1Index];
-            e[column1Index] = e[column2Index];
-            e[column2Index] = temp;
+        for (double[] row : matrix) {
+            double temp = row[column1Index];
+            row[column1Index] = row[column2Index];
+            row[column2Index] = temp;
         }
     }
 
@@ -241,7 +240,7 @@ public class Matrix {
         double[] vectorComponents = new double[getRowsAmount()];
 
         for (int i = 0; i < rows.length; i++) {
-            vectorComponents[i] = Vector.getDotProduct(getRow(i), vector);
+            vectorComponents[i] = Vector.getDotProduct(rows[i], vector);
         }
 
         return new Vector(vectorComponents);

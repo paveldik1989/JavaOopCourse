@@ -67,6 +67,7 @@ public class Matrix {
         }
 
         rows = new Vector[matrixComponents.length];
+
         for (int i = 0; i < matrixComponents.length; i++) {
             rows[i] = new Vector(maxArrayLength, matrixComponents[i]);
         }
@@ -113,7 +114,9 @@ public class Matrix {
     public Vector getRow(int rowIndex) {
         if (rowIndex < 0) {
             throw new IndexOutOfBoundsException("Row index cannot be < 0. Row index is " + rowIndex);
-        } else if (rowIndex > rows.length) {
+        }
+
+        if (rowIndex >= rows.length) {
             throw new IndexOutOfBoundsException("Row index must be < than rows amount. Row index is " + rowIndex
                     + ". Rows amount is " + rows.length);
         }

@@ -1,114 +1,71 @@
 package ru.academits.paveldik.list;
 
-import ru.academits.paveldik.node.Node;
-
 import java.util.Objects;
 
 public class List<T> {
     private Node<T> head;
-    private int size = 0;
+    private int size;
 
     public int getSize() {
         return size;
     }
 
     public T getFirst() {
-        return head.value;
+        checkHead();
+
+        return head.getValue();
     }
 
     public T get(int index) {
         checkIndex(index);
+        Node<T> node = getNodeByIndex(index);
 
-        int i = 0;
-        Node<T> node = head;
-
-        while (i != index) {
-            node = node.next;
-            i++;
-        }
-
-        return node.value;
-    }
-
-    private void checkIndex(int index) {
-        if (index >= size)
-            throw new IndexOutOfBoundsException("Index must be < than size of the list. Size is " + size
-                    + ". Index is " + index);
-        if (index < 0)
-            throw new IndexOutOfBoundsException("Index must be >= 0 than size of the list. Index is " + size);
+        return node.getValue();
     }
 
     public T set(int index, T element) {
         checkIndex(index);
 
-        int i = 0;
-        Node<T> node = head;
-
-        while (i != index) {
-            node = node.next;
-            i++;
-        }
-
-        T value = node.value;
-        node.value = element;
+        Node<T> node = getNodeByIndex(index);
+        T value = node.getValue();
+        node.setValue(element);
 
         return value;
     }
 
     public void addFirst(T value) {
-        Node<T> node = new Node<>();
-        node.value = value;
-
-        if (head != null) {
-            node.next = head;
-        }
-        head = node;
+        head = new Node<>(value, head);
         size++;
     }
 
     public void addLast(T value) {
-        Node<T> node = new Node<>();
-        node.value = value;
-
-        if (head == null) {
-            head = node;
-        } else {
-            Node<T> lastNode = head;
-
-            while (lastNode.next != null) {
-                lastNode = lastNode.next;
-            }
-
-            lastNode.next = node;
-        }
-
-        size++;
+        add(size, value);
     }
 
     public T remove(int index) {
         checkIndex(index);
 
         int i = 0;
-        Node<T> current = head;
-        Node<T> previous = null;
+        Node<T> currentNode = head;
+        Node<T> previousNode = null;
 
         while (i != index) {
-            previous = current;
-            current = current.next;
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
             i++;
         }
 
-        T value = current.value;
+        T value = currentNode.getValue();
 
-        if (previous != null) {
-            if (current.next != null) {
-                previous.next = current.next;
+        if (previousNode != null) {
+            if (currentNode.getNext() != null) {
+                previousNode.setNext(currentNode.getNext());
             } else {
-                previous.next = null;
+                previousNode.setNext(null);
             }
         } else {
-            if (current.next != null) {
-                head = current.next;
+            if (currentNode.getNext() != null) {
+                head = currentNode.getNext();
             } else {
                 head = null;
             }
@@ -119,53 +76,61 @@ public class List<T> {
     }
 
     public void add(int index, T element) {
-        checkIndex(index);
+        if (index > size) {
+            throw new IndexOutOfBoundsException("Index must be <= than size of the list. Size is " + size
+                    + ". Index is " + index);
+        }
+
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index must be >= 0 than size of the list. Index is " + size);
+        }
 
         int i = 0;
-        Node<T> current = head;
-        Node<T> previous = null;
+        Node<T> currentNode = head;
+        Node<T> previousNode = null;
 
         while (i != index) {
-            previous = current;
-            current = current.next;
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
             i++;
         }
 
-        Node<T> node = new Node<>();
-        node.value = element;
+        Node<T> node = new Node<>(element);
 
-        if (previous != null) {
-            previous.next = node;
+        if (previousNode != null) {
+            previousNode.setNext(node);
         } else {
             head = node;
         }
 
-        node.next = current;
+        node.setNext(currentNode);
         size++;
     }
 
-    public boolean removeFirstOccurrence(T element) {
-        Node<T> current = head;
-        Node<T> previous = null;
+    public boolean remove(T element) {
+        checkHead();
 
-        while (!Objects.equals(current.value, element)) {
-            previous = current;
-            current = current.next;
+        Node<T> currentNode = head;
+        Node<T> previousNode = null;
 
-            if (current == null) {
+        while (!Objects.equals(currentNode.getValue(), element)) {
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
+
+            if (currentNode == null) {
                 return false;
             }
         }
 
-        if (previous != null) {
-            if (current.next != null) {
-                previous.next = current.next;
+        if (previousNode != null) {
+            if (currentNode.getNext() != null) {
+                previousNode.setNext(currentNode.getNext());
             } else {
-                previous.next = null;
+                previousNode.setNext(null);
             }
         } else {
-            if (current.next != null) {
-                head = current.next;
+            if (currentNode.getNext() != null) {
+                head = currentNode.getNext();
             } else {
                 head = null;
             }
@@ -176,10 +141,11 @@ public class List<T> {
     }
 
     public T removeFirst() {
-        T value = head.value;
+        checkHead();
+        T value = head.getValue();
 
-        if (head.next != null) {
-            head = head.next;
+        if (head.getNext() != null) {
+            head = head.getNext();
         } else {
             head = null;
         }
@@ -194,8 +160,8 @@ public class List<T> {
         Node<T> nextNode;
 
         while (currentNode != null) {
-            nextNode = currentNode.next;
-            currentNode.next = previousNode;
+            nextNode = currentNode.getNext();
+            currentNode.setNext(previousNode);
             previousNode = currentNode;
             currentNode = nextNode;
         }
@@ -204,27 +170,72 @@ public class List<T> {
     }
 
     public List<T> copy() {
-        List<T> list = new List<>();
-        Node<T> current = head;
+        List<T> listCopy = new List<>();
 
-        while (current != null) {
-            list.addLast(current.value);
-            current = current.next;
+        if (head != null) {
+            listCopy.head = new Node<>(head.getValue());
+
+            Node<T> currentNode = head;
+            Node<T> currentNodeCopy = listCopy.head;
+
+            while (currentNode.getNext() != null) {
+                Node<T> nextNodeCopy = new Node<>(currentNode.getNext().getValue());
+                currentNodeCopy.setNext(nextNodeCopy);
+
+                currentNode = currentNode.getNext();
+                currentNodeCopy = nextNodeCopy;
+            }
         }
 
-        return list;
+        return listCopy;
+    }
+
+    private void checkIndex(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("Index must be < than size of the list. Size is " + size
+                    + ". Index is " + index);
+        }
+
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index must be >= 0 than size of the list. Index is " + size);
+        }
+    }
+
+    private void checkHead() {
+        if (head == null) {
+            throw new NullPointerException("The method is not valid for an empty list.");
+        }
+    }
+
+    private Node<T> getNodeByIndex(int index) {
+        Node<T> node = null;
+        if (index > -1) {
+            node = head;
+            int i = 0;
+
+            while (i != index) {
+                node = node.getNext();
+                i++;
+            }
+        }
+
+        return node;
     }
 
     @Override
     public String toString() {
+        if (head == null) {
+            return "[]";
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
         Node<T> listNode = head;
 
         while (listNode != null) {
-            stringBuilder.append(listNode.value);
+            stringBuilder.append(listNode.getValue());
             stringBuilder.append(", ");
-            listNode = listNode.next;
+            listNode = listNode.getNext();
         }
 
         stringBuilder.delete(stringBuilder.length() - 2, stringBuilder.length());

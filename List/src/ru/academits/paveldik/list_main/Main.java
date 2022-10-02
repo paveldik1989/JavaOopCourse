@@ -1,4 +1,4 @@
-package ru.academits.paveldik.main;
+package ru.academits.paveldik.list_main;
 
 import ru.academits.paveldik.list.List;
 
@@ -20,7 +20,8 @@ public class Main {
         list.addFirst(9);
         System.out.println("Список после вставки первого элемента: " + list);
 
-        list.removeFirstOccurrence(2);
+        Integer toRemoveValue = 2;
+        list.remove(toRemoveValue);
         System.out.println("Список после удаления первого встречаюещося элемента " + list);
 
         System.out.println("Размер: " + list.getSize());
@@ -35,12 +36,14 @@ public class Main {
 
 
         list.add(1, 500);
-        System.out.println("Список после добаления элемента по индексу 1: " + list);
+        System.out.println("Список после добавления элемента по индексу 1: " + list);
 
         list.reverse();
         System.out.println("Список после разворота: " + list);
 
         List<Integer> listCopy = list.copy();
+        list.reverse();
+
         System.out.println("Скопированный список: " + listCopy);
     }
 }

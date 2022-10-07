@@ -10,7 +10,7 @@ public class HashTable<T> implements Collection<T> {
     public HashTable(int bucketsAmount) {
         buckets = new ArrayList[bucketsAmount];
 
-        for (int i = 0; i < bucketsAmount; i++) { // Почему если здесь foreach, то не работает?
+        for (int i = 0; i < bucketsAmount; i++) { //Почему если здесь foreach, то не работает?
             buckets[i] = new ArrayList<>();
         }
     }

@@ -5,6 +5,7 @@ import ru.academits.paveldik.list.List;
 public class Main {
     public static void main(String[] args) {
         List<Integer> list = new List<>();
+        list.addFirst(23);
 
         list.addLast(1);
         list.addLast(2);
@@ -26,17 +27,20 @@ public class Main {
 
         System.out.println("Размер: " + list.getSize());
         System.out.println("Первый элемент: " + list.getFirst());
-        System.out.println("Элемент по индексу 2: " + list.get(2));
+        System.out.println("Элемент по индексу: " + list.get(2));
 
         list.set(1, 100);
-        System.out.println("Список после изменения элемента по индексу 1: " + list);
+        System.out.println("Список после изменения элемента по индексу: " + list);
 
         list.remove(2);
-        System.out.println("Список после удаления элемента по индексу 2: " + list);
+        System.out.println("Список после удаления элемента по индексу: " + list);
+
+        list.remove(Integer.valueOf(100500));
+        System.out.println("Список после удаления элемента по значению: " + list);
 
 
         list.add(1, 500);
-        System.out.println("Список после добавления элемента по индексу 1: " + list);
+        System.out.println("Список после добавления элемента по индексу: " + list);
 
         list.reverse();
         System.out.println("Список после разворота: " + list);
@@ -45,5 +49,11 @@ public class Main {
         list.reverse();
 
         System.out.println("Скопированный список: " + listCopy);
+
+        List<Integer> list1 = new List<>();
+        list1.addLast(10);
+        list1.addLast(11);
+        System.out.println(list1.remove(Integer.valueOf(11)));
+        System.out.println(list1);
     }
 }

@@ -45,32 +45,15 @@ public class List<T> {
     public T remove(int index) {
         checkIndex(index);
 
-        int i = 0;
-        Node<T> currentNode = head;
-        Node<T> previousNode = null;
-
-        while (i != index) {
-            previousNode = currentNode;
-            currentNode = currentNode.getNext();
-            i++;
+        if (index == 0) {
+            return removeFirst();
         }
+
+        Node<T> previousNode = getNodeByIndex(index - 1);
+        Node<T> currentNode = previousNode.getNext();
 
         T value = currentNode.getValue();
-
-        if (previousNode != null) {
-            if (currentNode.getNext() != null) {
-                previousNode.setNext(currentNode.getNext());
-            } else {
-                previousNode.setNext(null);
-            }
-        } else {
-            if (currentNode.getNext() != null) {
-                head = currentNode.getNext();
-            } else {
-                head = null;
-            }
-        }
-
+        previousNode.setNext(currentNode.getNext());
         size--;
         return value;
     }
@@ -85,30 +68,23 @@ public class List<T> {
             throw new IndexOutOfBoundsException("Index must be >= 0 than size of the list. Index is " + size);
         }
 
-        int i = 0;
-        Node<T> currentNode = head;
-        Node<T> previousNode = null;
-
-        while (i != index) {
-            previousNode = currentNode;
-            currentNode = currentNode.getNext();
-            i++;
+        if (index == 0) {
+            addFirst(element);
+            return; // Допустимо ли так делать в void методе чтобы не оборачивать в if-else весь метод?
         }
 
-        Node<T> node = new Node<>(element);
+        Node<T> previousNode = getNodeByIndex(index - 1);
+        Node<T> currentNode = previousNode.getNext();
 
-        if (previousNode != null) {
-            previousNode.setNext(node);
-        } else {
-            head = node;
-        }
-
-        node.setNext(currentNode);
+        Node<T> node = new Node<>(element, currentNode);
+        previousNode.setNext(node);
         size++;
     }
 
     public boolean remove(T element) {
-        checkHead();
+        if (head == null) {
+            return false;
+        }
 
         Node<T> currentNode = head;
         Node<T> previousNode = null;
@@ -123,17 +99,9 @@ public class List<T> {
         }
 
         if (previousNode != null) {
-            if (currentNode.getNext() != null) {
-                previousNode.setNext(currentNode.getNext());
-            } else {
-                previousNode.setNext(null);
-            }
+            previousNode.setNext(currentNode.getNext());
         } else {
-            if (currentNode.getNext() != null) {
-                head = currentNode.getNext();
-            } else {
-                head = null;
-            }
+            head = currentNode.getNext();
         }
 
         size--;
@@ -143,13 +111,7 @@ public class List<T> {
     public T removeFirst() {
         checkHead();
         T value = head.getValue();
-
-        if (head.getNext() != null) {
-            head = head.getNext();
-        } else {
-            head = null;
-        }
-
+        head = head.getNext();
         size--;
         return value;
     }
@@ -157,10 +119,9 @@ public class List<T> {
     public void reverse() {
         Node<T> previousNode = null;
         Node<T> currentNode = head;
-        Node<T> nextNode;
 
         while (currentNode != null) {
-            nextNode = currentNode.getNext();
+            Node<T> nextNode = currentNode.getNext();
             currentNode.setNext(previousNode);
             previousNode = currentNode;
             currentNode = nextNode;
@@ -170,21 +131,23 @@ public class List<T> {
     }
 
     public List<T> copy() {
+        if (head == null) {
+            return null;
+        }
+
         List<T> listCopy = new List<>();
+        listCopy.head = new Node<>(head.getValue());
+        listCopy.size = size;
 
-        if (head != null) {
-            listCopy.head = new Node<>(head.getValue());
+        Node<T> currentNode = head;
+        Node<T> currentNodeCopy = listCopy.head;
 
-            Node<T> currentNode = head;
-            Node<T> currentNodeCopy = listCopy.head;
+        while (currentNode.getNext() != null) {
+            Node<T> nextNodeCopy = new Node<>(currentNode.getNext().getValue());
+            currentNodeCopy.setNext(nextNodeCopy);
 
-            while (currentNode.getNext() != null) {
-                Node<T> nextNodeCopy = new Node<>(currentNode.getNext().getValue());
-                currentNodeCopy.setNext(nextNodeCopy);
-
-                currentNode = currentNode.getNext();
-                currentNodeCopy = nextNodeCopy;
-            }
+            currentNode = currentNode.getNext();
+            currentNodeCopy = nextNodeCopy;
         }
 
         return listCopy;
@@ -208,15 +171,12 @@ public class List<T> {
     }
 
     private Node<T> getNodeByIndex(int index) {
-        Node<T> node = null;
-        if (index > -1) {
-            node = head;
-            int i = 0;
+        Node<T> node = head;
+        int i = 0;
 
-            while (i != index) {
-                node = node.getNext();
-                i++;
-            }
+        while (i != index) {
+            node = node.getNext();
+            i++;
         }
 
         return node;

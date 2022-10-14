@@ -131,6 +131,7 @@ public class Tree<E extends Comparable<E>> {
     public void traverseDepthFirst(Consumer<E> action) {
         Stack<TreeNode<E>> stack = new Stack<>();
         stack.push(root);
+
         while (!stack.isEmpty()) {
             TreeNode<E> treeNode = stack.pop();
             action.accept(treeNode.getValue());
@@ -145,7 +146,7 @@ public class Tree<E extends Comparable<E>> {
         }
     }
 
-    public void remove(E value) { // Добавить изменение размера
+    public void remove(E value) {
         if (root == null) {
             return;
         }

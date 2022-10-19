@@ -1,6 +1,6 @@
-package ru.academits.paveldik.person_main;
+package ru.academits.paveldik.lamdas_main;
 
-import ru.academits.paveldik.person.Person;
+import ru.academits.paveldik.lamdas_person.Person;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,7 @@ public class Main {
                 new Person("Жанна", 11)
         );
 
-        //А
+        // А
         List<String> names = people.stream()
                 .map(Person::getName)
                 .distinct()
@@ -33,27 +33,34 @@ public class Main {
 
         System.out.println("Имена: " + names);
 
-        //Б
+        // Б
         String allNamesString = names.stream()
                 .collect(Collectors.joining(", ", "Имена: ", ""));
 
         System.out.println(allNamesString);
 
-        //В
-        double notAdultAverageAge = people.stream()
-                .filter(person -> person.getAge() < 18)
-                .mapToInt(Person::getAge)
-                .average().orElseThrow(IllegalStateException::new); // Пришлось просто загуглить, неясно что такое OptionalDouble
+        // В
+        try {
+            double notAdultAverageAge = people.stream()
+                    .filter(person -> person.getAge() < 18)
+                    .mapToInt(Person::getAge)
+                    .average()
+                    .orElseThrow(IllegalStateException::new);
 
-        System.out.println("Средний возраст лиц меньше 18 лет: " + notAdultAverageAge);
 
-        //Г
-        Map<String, Double> namesAverageAge = people.stream()
+            System.out.println("Средний возраст лиц меньше 18 лет: " + notAdultAverageAge);
+        } catch (IllegalStateException err) {
+            System.out.println("Невозможно вычислить средний возраст лиц меньше 18 лет.");
+            // Как напечатать стек вызовов, чтобы он не печатался в консоли в нужном месте, а не после фразы "Введите число элементов.."?
+        }
+
+        // Г
+        Map<String, Double> namesAverageAges = people.stream()
                 .collect(Collectors.groupingBy(Person::getName, Collectors.averagingInt(Person::getAge)));
 
-        System.out.println("Средний возраст для имен: " + namesAverageAge);
+        System.out.println("Средний возраст для имен: " + namesAverageAges);
 
-        //Д
+        // Д
         List<Person> peopleWithAgeFrom20To45InDescendingOrder = people.stream()
                 .filter(person -> person.getAge() >= 20 && person.getAge() <= 45)
                 .sorted((p1, p2) -> p2.getAge() - p1.getAge())
@@ -66,9 +73,11 @@ public class Main {
 
         // Задача 2
         Scanner scanner = new Scanner(System.in);
+
         System.out.print("Введите число элементов для вычисления корней: ");
         int elementsAmount = scanner.nextInt();
-        DoubleStream squareRoots = DoubleStream.iterate(0, x -> x + 1).map(Math::sqrt); // Почему сюда нельзя дописать? .collect(Collectors.joining(", "));
+
+        DoubleStream squareRoots = DoubleStream.iterate(0, x -> x + 1).map(Math::sqrt);
 
         System.out.println("Корни целых чисел:");
         squareRoots.limit(elementsAmount).forEach(System.out::println);
@@ -76,14 +85,10 @@ public class Main {
         // Задача 2*
         System.out.print("Введите число элементов для вычисления чисел Фибоначчи: ");
         elementsAmount = scanner.nextInt();
-        final int[] previousNumber = {0}; // как можно выкрутится без этого? Еще видел что реализуют через массив из двух чисел
-        IntStream fibonacciNumbers = IntStream.iterate(1, currentNumber -> {
-            currentNumber += previousNumber[0];
-            previousNumber[0] = currentNumber - previousNumber[0];
-            return currentNumber;
-        });
 
-        System.out.println("Числа Фибоначчи:");
-        fibonacciNumbers.limit(elementsAmount).forEach(System.out::println);
+        Stream.iterate(new int[]{0, 1}, n -> new int[]{n[1], n[0] + n[1]})
+                .mapToInt(n -> n[0])
+                .limit(elementsAmount)
+                .forEach(System.out::println);
     }
 }

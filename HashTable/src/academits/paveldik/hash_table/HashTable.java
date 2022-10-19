@@ -2,92 +2,104 @@ package academits.paveldik.hash_table;
 
 import java.util.*;
 
-public class HashTable<T> implements Collection<T> {
-    private final ArrayList<T>[] buckets;
-    private int length = 0;
+public class HashTable<E> implements Collection<E> {
+    private final ArrayList<E>[] lists;
+    private int size;
     private int modCount;
 
-    public HashTable(int bucketsAmount) {
-        buckets = new ArrayList[bucketsAmount];
-
-        for (int i = 0; i < bucketsAmount; i++) { //Почему если здесь foreach, то не работает?
-            buckets[i] = new ArrayList<>();
+    public HashTable(int listsAmount) {
+        if (listsAmount < 1) {
+            throw new IllegalArgumentException("Количество списков должно быть >= 1. Количество списков: " + listsAmount);
         }
+
+        //noinspection unchecked
+        lists = new ArrayList[listsAmount];
     }
 
-    public HashTable(int bucketsAmount, Collection<? extends T> collection) {
-        this(bucketsAmount);
-        this.addAll(collection);
+    public HashTable(int listsAmount, Collection<? extends E> collection) {
+        this(listsAmount);
+        addAll(collection);
     }
 
-    private int calculateBucketIndex(Object object) {
-        return Math.abs(object.hashCode() % buckets.length);
+    private int getListIndex(Object object) {
+        if (object == null) {
+            return 0;
+        }
+
+        return Math.abs(object.hashCode() % lists.length);
     }
 
-    private class MyIterator implements Iterator<T> {
+    private class HashTableIterator implements Iterator<E> {
         private int elementIndex = -1;
-        private int bucketIndex = 0;
-        private int listIndex = -1;
+        private int listIndex = 0;
+        private int elementInListIndex = -1;
         private final int initialModCount = modCount;
 
         @Override
         public boolean hasNext() {
-            return elementIndex + 1 < length;
+            return elementIndex + 1 < size;
         }
 
         @Override
-        public T next() {
+        public E next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("Хэш-таблица закончилась.");
             }
 
             if (initialModCount != modCount) {
-                throw new ConcurrentModificationException("Во время обхода итератором удаляли либо добавляли элементы в хэш-таблицу.");
+                throw new ConcurrentModificationException("Во время обхода итератором хэш-таблица изменилась.");
             }
 
             elementIndex++;
-            listIndex++;
+            elementInListIndex++;
 
-            if (buckets[bucketIndex].size() == 0 || listIndex >= buckets[bucketIndex].size()) {
-                bucketIndex++;
+            if (lists[listIndex] == null || lists[listIndex].isEmpty() || elementInListIndex >= lists[listIndex].size()) {
+                listIndex++;
 
-                while (buckets[bucketIndex].size() == 0) {
-                    bucketIndex++;
+                while (lists[listIndex] == null || lists[listIndex].size() == 0) {
+                    listIndex++;
                 }
 
-                listIndex = 0;
+                elementInListIndex = 0;
             }
 
-            return buckets[bucketIndex].get(listIndex);
+            return lists[listIndex].get(elementInListIndex);
         }
     }
 
     @Override
     public int size() {
-        return length;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        return length == 0;
+        return size == 0;
     }
 
     @Override
     public boolean contains(Object o) {
-        return buckets[calculateBucketIndex(o)].contains(o);
+        int listIndex = getListIndex(o);
+
+        if (lists[listIndex] == null) {
+            return false;
+        }
+
+        return lists[getListIndex(o)].contains(o);
     }
 
     @Override
-    public Iterator<T> iterator() {
-        return new MyIterator();
+    public Iterator<E> iterator() {
+        return new HashTableIterator();
     }
 
     @Override
-    public T[] toArray() {
-        T[] elements = (T[]) new Object[length];
+    public E[] toArray() {
+        //noinspection unchecked
+        E[] elements = (E[]) new Object[size];
         int i = 0;
 
-        for (T element : this) {
+        for (E element : this) {
             elements[i] = element;
             i++;
         }
@@ -96,39 +108,51 @@ public class HashTable<T> implements Collection<T> {
     }
 
     @Override
-    public <T1> T1[] toArray(T1[] a) {
-        if (a.length < length) {
-            return (T1[]) this.toArray();
+    public <T> T[] toArray(T[] a) {
+        if (a.length < size) {
+            //noinspection unchecked
+            return (T[]) Arrays.copyOf(toArray(), size, a.getClass()); // не ясно насколько так правильно, и почему нельзя Т передать аргументов в copyOf?
         }
 
         int i = 0;
 
-        for (T element : this) {
-            a[i] = (T1) element;
+        for (E element : this) {
+            //noinspection unchecked
+            a[i] = (T) element;
             i++;
         }
 
-        for (int j = length; j < a.length; j++) {
-            a[j] = null;
+        if (a.length > size) {
+            a[size] = null;
         }
 
         return a;
     }
 
     @Override
-    public boolean add(T t) {
-        buckets[calculateBucketIndex(t)].add(t);
-        length++;
+    public boolean add(E e) {
+        int listIndex = getListIndex(e);
+
+        if (lists[listIndex] == null) {
+            lists[listIndex] = new ArrayList<>();
+        }
+
+        lists[listIndex].add(e);
+        size++;
         modCount++;
         return true;
     }
 
     @Override
-    public boolean remove(Object o) {
-        boolean isRemoved = buckets[calculateBucketIndex(o)].remove(o);
+    public boolean remove(Object o) { // Нужно ли занулять листы которые становятся пустыми? Есди нет, то как-то непоследовательно получается.
+        if (lists[getListIndex(o)] == null) { // В конструкторе ненужные листы не создаем. Тогда почему тут не занулем пустые?
+            return false;
+        }
+
+        boolean isRemoved = lists[getListIndex(o)].remove(o);
 
         if (isRemoved) {
-            length--;
+            size--;
             modCount++;
         }
 
@@ -147,8 +171,12 @@ public class HashTable<T> implements Collection<T> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
-        for (T element : c) {
+    public boolean addAll(Collection<? extends E> c) {
+        if (c.isEmpty()) {
+            return false;
+        }
+
+        for (E element : c) {
             add(element);
         }
 
@@ -157,24 +185,36 @@ public class HashTable<T> implements Collection<T> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        for (Object element : c) {
-            remove(element);
+        if (c.isEmpty()) {
+            return false;
         }
 
-        return false;
+        boolean isChanged = false;
+
+        for (Object element : c) {
+            while (contains(element)) {
+                remove(element);
+                isChanged = true;
+            }
+        }
+
+        return isChanged;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         boolean isChanged = false;
-        HashTable<?> hashTable = new HashTable<>(buckets.length, c);
 
-        for (int i = 0; i < buckets.length; i++) {
-            int listLength = buckets[i].size();
+        for (ArrayList<E> list : lists) {
+            if (list == null) {
+                continue;
+            }
 
-            if (buckets[i].retainAll(hashTable.buckets[i])) {
-                isChanged = true;
-                length -= listLength - buckets[i].size();
+            int listSizeBeforeDelete = list.size();
+
+            if (list.retainAll(c)) { // Не выглядит эффективным потому что не ипользуется принцип хэштаблицы для элементов коллекции.
+                isChanged = true; // А чтобы использовать кэшкод, нужно сделать то что было сделано в предыдущей версии - представить коллекцию в виде хэштаблицы.
+                size -= listSizeBeforeDelete - list.size();
             }
         }
 
@@ -183,25 +223,33 @@ public class HashTable<T> implements Collection<T> {
 
     @Override
     public void clear() {
-        for (ArrayList<T> bucket : buckets) {
-            bucket.clear();
-            modCount++;
+        if (size == 0) {
+            return;
         }
 
-        length = 0;
+        for (ArrayList<E> list : lists) {
+            if (list == null || list.isEmpty()) {
+                continue;
+            }
+
+            list.clear();
+        }
+
+        modCount++;
+        size = 0;
     }
 
     @Override
     public String toString() {
-        if (length == 0) {
+        if (size == 0) {
             return "[]";
         }
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
 
-        for (T t : this) {
-            stringBuilder.append(t);
+        for (E element : this) {
+            stringBuilder.append(element);
             stringBuilder.append(", ");
         }
 

@@ -1,21 +1,53 @@
 package ru.academits.paveldik.tree;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class Tree<E extends Comparable<E>> {
+public class Tree<E> {
     private TreeNode<E> root;
     private int size;
+    private Comparator<E> comparator;
 
     public Tree() {
     }
 
+    public Tree(Comparator<E> comparator) {
+        this.comparator = comparator;
+    }
+
     public Tree(Collection<E> collection) {
         for (E e : collection) {
-            this.add(e);
+            add(e);
         }
+    }
+
+    public Tree(Collection<E> collection, Comparator<E> comparator) {
+        this.comparator = comparator;
+
+        for (E e : collection) {
+            add(e);
+        }
+    }
+
+    private int compareValues(E value1, E value2) {
+        if (value1 == null && value2 == null) {
+            return 0;
+        }
+
+        if (value1 == null) {
+            return -1;
+        }
+
+        if (value2 == null) {
+            return 1;
+        }
+
+        if (comparator == null) {
+            //noinspection unchecked
+            return ((Comparable<E>) value1).compareTo(value2); // Почему здесь нужно кастовать тип только в левой части?
+        } // Т.е. почему не так ((Comparable<E>)value1).compareTo((Comparable<E>)value2)
+
+        return comparator.compare(value1, value2);
     }
 
     public int size() {
@@ -24,7 +56,7 @@ public class Tree<E extends Comparable<E>> {
 
     public void add(E value) {
         if (root == null) {
-            root = new TreeNode<>(value, null, null);
+            root = new TreeNode<>(value);
             size++;
             return;
         }
@@ -32,18 +64,18 @@ public class Tree<E extends Comparable<E>> {
         TreeNode<E> currentNode = root;
 
         while (true) {
-            if (value.compareTo(currentNode.getValue()) < 0) {
+            if (compareValues(value, currentNode.getValue()) < 0) {
                 if (currentNode.getLeftChild() != null) {
                     currentNode = currentNode.getLeftChild();
                 } else {
-                    currentNode.setLeftChild(new TreeNode<>(value, null, null));
+                    currentNode.setLeftChild(new TreeNode<>(value));
                     break;
                 }
             } else {
                 if (currentNode.getRightChild() != null) {
                     currentNode = currentNode.getRightChild();
                 } else {
-                    currentNode.setRightChild(new TreeNode<>(value, null, null));
+                    currentNode.setRightChild(new TreeNode<>(value));
                     break;
                 }
             }
@@ -57,7 +89,7 @@ public class Tree<E extends Comparable<E>> {
             return false;
         }
 
-        if (value.compareTo(root.getValue()) == 0) {
+        if (compareValues(value, root.getValue()) == 0) {
             return true;
         }
 
@@ -73,11 +105,13 @@ public class Tree<E extends Comparable<E>> {
         TreeNode<E> currentNodeParent = null;
 
         while (true) {
-            if (value.compareTo(currentNode.getValue()) == 0) {
+            int compareValues = compareValues(value, currentNode.getValue());
+
+            if (compareValues == 0) {
                 return currentNodeParent;
             }
 
-            if (value.compareTo(currentNode.getValue()) < 0) {
+            if (compareValues < 0) {
                 if (currentNode.getLeftChild() == null) {
                     return null;
                 }
@@ -100,18 +134,19 @@ public class Tree<E extends Comparable<E>> {
             return;
         }
 
-        LinkedList<TreeNode<E>> queue = new LinkedList<>();
+        Queue<TreeNode<E>> queue = new LinkedList<>();
         queue.add(root);
 
         while (!queue.isEmpty()) {
-            TreeNode<E> treeNode = queue.removeFirst();
+            TreeNode<E> treeNode = queue.remove();
             action.accept(treeNode.getValue());
+
             if (treeNode.getLeftChild() != null) {
-                queue.addLast(treeNode.getLeftChild());
+                queue.add(treeNode.getLeftChild());
             }
 
             if (treeNode.getRightChild() != null) {
-                queue.addLast(treeNode.getRightChild());
+                queue.add(treeNode.getRightChild());
             }
         }
     }
@@ -129,7 +164,11 @@ public class Tree<E extends Comparable<E>> {
     }
 
     public void traverseDepthFirst(Consumer<E> action) {
-        Stack<TreeNode<E>> stack = new Stack<>();
+        if (root == null) {
+            return;
+        }
+
+        Deque<TreeNode<E>> stack = new LinkedList<>();
         stack.push(root);
 
         while (!stack.isEmpty()) {
@@ -146,22 +185,22 @@ public class Tree<E extends Comparable<E>> {
         }
     }
 
-    public void remove(E value) {
+    public boolean remove(E value) {
         if (root == null) {
-            return;
+            return false;
         }
 
         TreeNode<E> nodeToDeleteParent = getNodeParent(value);
         TreeNode<E> nodeToDelete;
 
         if (nodeToDeleteParent == null) {
-            if (value.compareTo(root.getValue()) != 0) {
-                return;
+            if (compareValues(value, root.getValue()) != 0) {
+                return false;
             }
 
             nodeToDelete = root;
         } else {
-            if (value.compareTo(nodeToDeleteParent.getValue()) < 0) {
+            if (compareValues(value, nodeToDeleteParent.getValue()) < 0) {
                 nodeToDelete = nodeToDeleteParent.getLeftChild();
             } else {
                 nodeToDelete = nodeToDeleteParent.getRightChild();
@@ -170,103 +209,53 @@ public class Tree<E extends Comparable<E>> {
 
         // Случай 1 - нет детей
         if (nodeToDelete.getRightChild() == null && nodeToDelete.getLeftChild() == null) {
-            if (nodeToDeleteParent == null) {
-                root = null;
-                size--;
-                return;
-            }
-
-            if (nodeToDelete.getValue().compareTo(nodeToDeleteParent.getValue()) < 0) {
-                nodeToDeleteParent.setLeftChild(null);
-            } else {
-                nodeToDeleteParent.setRightChild(null);
-            }
-
+            linkNodeToParent(nodeToDeleteParent, null, value);
             size--;
+            return true;
         }
+
+        TreeNode<E> replacementNode;
 
         // Случай 2 - есть один ребенок
-        if (nodeToDelete.getLeftChild() != null && nodeToDelete.getRightChild() == null) {
-            if (nodeToDeleteParent == null) {
-                root = nodeToDelete.getLeftChild();
-                size--;
-                return;
-            }
-
-            if (nodeToDelete.getValue().compareTo(nodeToDeleteParent.getValue()) < 0) {
-                nodeToDeleteParent.setLeftChild(nodeToDelete.getLeftChild());
+        if (nodeToDelete.getLeftChild() == null || nodeToDelete.getRightChild() == null) {
+            if (nodeToDelete.getLeftChild() == null) {
+                replacementNode = nodeToDelete.getRightChild();
             } else {
-                nodeToDeleteParent.setRightChild(nodeToDelete.getLeftChild());
+                replacementNode = nodeToDelete.getLeftChild();
             }
 
+            linkNodeToParent(nodeToDeleteParent, replacementNode, value);
             size--;
-        }
-
-        if (nodeToDelete.getLeftChild() == null && nodeToDelete.getRightChild() != null) {
-            if (nodeToDeleteParent == null) {
-                root = nodeToDelete.getRightChild();
-                size--;
-                return;
-            }
-
-            if (nodeToDelete.getValue().compareTo(nodeToDeleteParent.getValue()) < 0) {
-                nodeToDeleteParent.setLeftChild(nodeToDelete.getRightChild());
-            } else {
-                nodeToDeleteParent.setRightChild(nodeToDelete.getRightChild());
-            }
-
-            size--;
+            return true;
         }
 
         // Случай 3 - есть два ребенка
-        if (nodeToDelete.getLeftChild() != null && nodeToDelete.getRightChild() != null) {
-            if (nodeToDelete.getRightChild().getLeftChild() == null) {
-                if (nodeToDeleteParent == null) {
-                    nodeToDelete.getRightChild().setLeftChild(nodeToDelete.getLeftChild());
-                    root = nodeToDelete.getRightChild();
-                    size--;
-                    return;
-                }
+        replacementNode = nodeToDelete.getRightChild();
+        TreeNode<E> replacementNodeParent = null;
 
-                if (nodeToDelete.getValue().compareTo(nodeToDeleteParent.getValue()) < 0) {
-                    nodeToDeleteParent.setLeftChild(nodeToDelete.getRightChild());
-                    nodeToDeleteParent.getLeftChild().setLeftChild(nodeToDelete.getLeftChild());
-                } else {
-                    nodeToDeleteParent.setRightChild(nodeToDelete.getRightChild());
-                    nodeToDeleteParent.getRightChild().setLeftChild(nodeToDelete.getLeftChild());
-                }
+        while (replacementNode.getLeftChild() != null) {
+            replacementNodeParent = replacementNode;
+            replacementNode = replacementNodeParent.getLeftChild();
+        }
 
-                size--;
-                return;
-            }
+        if (replacementNodeParent != null) {
+            replacementNodeParent.setLeftChild(replacementNode.getRightChild());
+            replacementNode.setRightChild(nodeToDelete.getRightChild());
+        }
 
-            TreeNode<E> lastLeftChild = nodeToDelete.getRightChild().getLeftChild();
-            TreeNode<E> lastLeftChildParent = nodeToDelete.getRightChild();
+        replacementNode.setLeftChild(nodeToDelete.getLeftChild());
+        linkNodeToParent(nodeToDeleteParent, replacementNode, value);
+        size--;
+        return true;
+    }
 
-            while (lastLeftChild.getLeftChild() != null) {
-                lastLeftChildParent = lastLeftChild;
-                lastLeftChild = lastLeftChild.getLeftChild();
-            }
-
-            lastLeftChildParent.setLeftChild(lastLeftChild.getRightChild());
-
-            if (nodeToDeleteParent == null) {
-                lastLeftChild.setLeftChild(nodeToDelete.getLeftChild());
-                lastLeftChild.setRightChild(nodeToDelete.getRightChild());
-                root = lastLeftChild;
-                size--;
-                return;
-            }
-
-            if (nodeToDelete.getValue().compareTo(nodeToDeleteParent.getValue()) < 0) {
-                nodeToDeleteParent.setLeftChild(lastLeftChild);
-            } else {
-                nodeToDeleteParent.setRightChild(lastLeftChild);
-            }
-
-            lastLeftChild.setLeftChild(nodeToDelete.getLeftChild());
-            lastLeftChild.setRightChild(nodeToDelete.getRightChild());
-            size--;
+    private void linkNodeToParent(TreeNode<E> nodeToDeleteParent, TreeNode<E> replacementNode, E value) {
+        if (nodeToDeleteParent == null) {
+            root = replacementNode;
+        } else if (compareValues(value, nodeToDeleteParent.getValue()) < 0) {
+            nodeToDeleteParent.setLeftChild(replacementNode);
+        } else {
+            nodeToDeleteParent.setRightChild(replacementNode);
         }
     }
 

@@ -1,33 +1,31 @@
 package ru.academits.paveldik.tree;
 
-public class TreeNode<E extends Comparable<E>> {
+class TreeNode<E> {
     private final E value;
     private TreeNode<E> leftChild;
     private TreeNode<E> rightChild;
 
-    public TreeNode(E value, TreeNode<E> leftChild, TreeNode<E> rightChild) {
+    TreeNode(E value) {
         this.value = value;
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
     }
 
-    public E getValue() {
+    E getValue() {
         return value;
     }
 
-    public TreeNode<E> getLeftChild() {
+    TreeNode<E> getLeftChild() {
         return leftChild;
     }
 
-    public void setLeftChild(TreeNode<E> leftChild) {
+    void setLeftChild(TreeNode<E> leftChild) {
         this.leftChild = leftChild;
     }
 
-    public TreeNode<E> getRightChild() {
+    TreeNode<E> getRightChild() {
         return rightChild;
     }
 
-    public void setRightChild(TreeNode<E> rightChild) {
+    void setRightChild(TreeNode<E> rightChild) {
         this.rightChild = rightChild;
     }
 }

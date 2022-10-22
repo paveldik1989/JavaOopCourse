@@ -18,12 +18,12 @@ public class Main {
         System.out.println(tree2);
         System.out.println("Размер: " + tree2.size());
 
-        for (Integer i : arrayList) {
-            tree2.remove(i);
-            System.out.println("Удаление значения " + i + ": " + tree2 + " Размер: " + tree2.size());
+        for (Integer integer : arrayList) {
+            tree2.remove(integer);
+            System.out.println("Удаление значения " + integer + ": " + tree2 + " Размер: " + tree2.size());
 
-            tree2.add(i);
-            System.out.println("Добавление значения " + i + ": " + tree2 + " Размер: " + tree2.size());
+            tree2.add(integer);
+            System.out.println("Добавление значения " + integer + ": " + tree2 + " Размер: " + tree2.size());
             System.out.println();
 
             tree2 = new Tree<>(arrayList);
@@ -40,5 +40,8 @@ public class Main {
         System.out.print("Обход в глубину без рекурсии: ");
         tree2.traverseDepthFirst(integer -> System.out.print(integer + ", "));
         System.out.println();
+
+        Tree<Integer> tree3 = new Tree<>();
+        tree3.traverseDepthFirst(System.out::println);
     }
 }

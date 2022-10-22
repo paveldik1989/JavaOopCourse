@@ -1,11 +1,8 @@
-package ru.academits.paveldik.lamdas_main;
+package ru.academits.paveldik.lambdas_main;
 
-import ru.academits.paveldik.lamdas_person.Person;
+import ru.academits.paveldik.lambdas_person.Person;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.*;
 
 public class Main {
@@ -39,19 +36,24 @@ public class Main {
 
         System.out.println(allNamesString);
 
-        // В
-        try {
-            double notAdultAverageAge = people.stream()
-                    .filter(person -> person.getAge() < 18)
-                    .mapToInt(Person::getAge)
-                    .average()
-                    .orElseThrow(IllegalStateException::new);
+        // В Какой из вариантов лучше?
+//            double notAdultAverageAge = people.stream()
+//                    .filter(person -> person.getAge() < 18)
+//                    .mapToInt(Person::getAge)
+//                    .average()
+//                    .orElse(Double.NaN);
+//
+//        System.out.println("Средний возраст лиц меньше 18 лет: " + notAdultAverageAge);
 
+        OptionalDouble notAdultAverageAge = people.stream()
+                .filter(person -> person.getAge() < 18)
+                .mapToInt(Person::getAge)
+                .average();
 
+        if (notAdultAverageAge.isPresent()) {
             System.out.println("Средний возраст лиц меньше 18 лет: " + notAdultAverageAge);
-        } catch (IllegalStateException err) {
+        } else {
             System.out.println("Невозможно вычислить средний возраст лиц меньше 18 лет.");
-            // Как напечатать стек вызовов, чтобы он не печатался в консоли в нужном месте, а не после фразы "Введите число элементов.."?
         }
 
         // Г
@@ -75,20 +77,20 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Введите число элементов для вычисления корней: ");
-        int elementsAmount = scanner.nextInt();
+        int squareRootsAmount = scanner.nextInt();
 
         DoubleStream squareRoots = DoubleStream.iterate(0, x -> x + 1).map(Math::sqrt);
 
         System.out.println("Корни целых чисел:");
-        squareRoots.limit(elementsAmount).forEach(System.out::println);
+        squareRoots.limit(squareRootsAmount).forEach(System.out::println);
 
         // Задача 2*
         System.out.print("Введите число элементов для вычисления чисел Фибоначчи: ");
-        elementsAmount = scanner.nextInt();
+        int fibonacciNumbersAmount = scanner.nextInt();
 
         Stream.iterate(new int[]{0, 1}, n -> new int[]{n[1], n[0] + n[1]})
                 .mapToInt(n -> n[0])
-                .limit(elementsAmount)
+                .limit(fibonacciNumbersAmount)
                 .forEach(System.out::println);
     }
 }

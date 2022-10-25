@@ -73,7 +73,7 @@ public class ArrayList<E> implements List<E> {
     }
 
     @Override
-    public E[] toArray() {
+    public Object[] toArray() {
         return Arrays.copyOf(elements, size);
     }
 
@@ -95,7 +95,15 @@ public class ArrayList<E> implements List<E> {
     }
 
     private void enlargeCapacity() {
-        elements = Arrays.copyOf(elements, (elements.length + 1) * 2);
+        int newCapacity;
+
+        if (elements.length == 0) {
+            newCapacity = DEFAULT_CAPACITY;
+        } else {
+            newCapacity = elements.length * 2;
+        }
+
+        elements = Arrays.copyOf(elements, newCapacity);
     }
 
     public void ensureCapacity(int minCapacity) {
@@ -106,13 +114,13 @@ public class ArrayList<E> implements List<E> {
 
     public void trimToSize() {
         if (elements.length > size) {
-            elements = Arrays.copyOf(elements, elements.length);
+            elements = Arrays.copyOf(elements, size);
         }
     }
 
     @Override
     public void add(int index, E element) {
-        checkIndexOut(index);
+        checkIndexForAdd(index);
 
         if (size == elements.length) {
             enlargeCapacity();
@@ -133,7 +141,7 @@ public class ArrayList<E> implements List<E> {
 
     @Override
     public E remove(int index) {
-        checkIndexIn(index);
+        checkIndex(index);
 
         E removedElement = elements[index];
         System.arraycopy(elements, index + 1, elements, index, size - index - 1);
@@ -163,7 +171,7 @@ public class ArrayList<E> implements List<E> {
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        checkIndexOut(index);
+        checkIndexForAdd(index);
 
         if (c.isEmpty()) {
             return false;
@@ -186,21 +194,25 @@ public class ArrayList<E> implements List<E> {
 
     @Override
     public void clear() {
-        Arrays.fill(elements, null);
+        if (size == 0) {
+            return;
+        }
+
+        Arrays.fill(elements, 0, size - 1, null);
         size = 0;
         modCount++;
     }
 
     @Override
     public E get(int index) {
-        checkIndexIn(index);
+        checkIndex(index);
 
         return elements[index];
     }
 
     @Override
     public E set(int index, E element) {
-        checkIndexIn(index);
+        checkIndex(index);
 
         E oldElement = elements[index];
         elements[index] = element;
@@ -311,7 +323,7 @@ public class ArrayList<E> implements List<E> {
         return stringBuilder.toString();
     }
 
-    private void checkIndexIn(int index) {
+    private void checkIndex(int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("Индекс не может быть < 0. Индекс: " + index);
         }
@@ -322,7 +334,7 @@ public class ArrayList<E> implements List<E> {
         }
     }
 
-    private void checkIndexOut(int index) {
+    private void checkIndexForAdd(int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("Индекс не может быть < 0. Индекс: " + index);
         }

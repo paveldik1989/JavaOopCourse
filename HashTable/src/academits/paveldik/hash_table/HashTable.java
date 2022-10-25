@@ -3,9 +3,15 @@ package academits.paveldik.hash_table;
 import java.util.*;
 
 public class HashTable<E> implements Collection<E> {
+    private static final int DEFAULT_LISTS_AMOUNT = 10;
+
     private final ArrayList<E>[] lists;
     private int size;
     private int modCount;
+
+    public HashTable() {
+        this(DEFAULT_LISTS_AMOUNT);
+    }
 
     public HashTable(int listsAmount) {
         if (listsAmount < 1) {
@@ -53,10 +59,10 @@ public class HashTable<E> implements Collection<E> {
             elementIndex++;
             elementInListIndex++;
 
-            if (lists[listIndex] == null || lists[listIndex].isEmpty() || elementInListIndex >= lists[listIndex].size()) {
+            if (lists[listIndex] == null || elementInListIndex >= lists[listIndex].size()) {
                 listIndex++;
 
-                while (lists[listIndex] == null || lists[listIndex].size() == 0) {
+                while (lists[listIndex] == null || lists[listIndex].isEmpty()) {
                     listIndex++;
                 }
 
@@ -80,12 +86,7 @@ public class HashTable<E> implements Collection<E> {
     @Override
     public boolean contains(Object o) {
         int listIndex = getListIndex(o);
-
-        if (lists[listIndex] == null) {
-            return false;
-        }
-
-        return lists[getListIndex(o)].contains(o);
+        return lists[listIndex] != null && lists[listIndex].contains(o);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class HashTable<E> implements Collection<E> {
     public <T> T[] toArray(T[] a) {
         if (a.length < size) {
             //noinspection unchecked
-            return (T[]) Arrays.copyOf(toArray(), size, a.getClass()); // не ясно насколько так правильно, и почему нельзя Т передать аргументов в copyOf?
+            return (T[]) Arrays.copyOf(toArray(), size, a.getClass());
         }
 
         int i = 0;
@@ -144,12 +145,14 @@ public class HashTable<E> implements Collection<E> {
     }
 
     @Override
-    public boolean remove(Object o) { // Нужно ли занулять листы которые становятся пустыми? Есди нет, то как-то непоследовательно получается.
-        if (lists[getListIndex(o)] == null) { // В конструкторе ненужные листы не создаем. Тогда почему тут не занулем пустые?
+    public boolean remove(Object o) {
+        int listIndex = getListIndex(o);
+
+        if (lists[listIndex] == null) {
             return false;
         }
 
-        boolean isRemoved = lists[getListIndex(o)].remove(o);
+        boolean isRemoved = lists[listIndex].remove(o);
 
         if (isRemoved) {
             size--;
@@ -192,8 +195,7 @@ public class HashTable<E> implements Collection<E> {
         boolean isChanged = false;
 
         for (Object element : c) {
-            while (contains(element)) {
-                remove(element);
+            while (remove(element)) {
                 isChanged = true;
             }
         }
@@ -212,8 +214,8 @@ public class HashTable<E> implements Collection<E> {
 
             int listSizeBeforeDelete = list.size();
 
-            if (list.retainAll(c)) { // Не выглядит эффективным потому что не ипользуется принцип хэштаблицы для элементов коллекции.
-                isChanged = true; // А чтобы использовать кэшкод, нужно сделать то что было сделано в предыдущей версии - представить коллекцию в виде хэштаблицы.
+            if (list.retainAll(c)) {
+                isChanged = true;
                 size -= listSizeBeforeDelete - list.size();
             }
         }

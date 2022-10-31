@@ -4,6 +4,7 @@ public class Map {
     private final int rowsAmount;
     private final int columnsAmount;
     private final int totalBombsAmount;
+
     private final Cell[][] cells;
 
     public Cell[][] getCells() {
@@ -34,22 +35,18 @@ public class Map {
             int bombRow = (int) Math.floor(Math.random() * rowsAmount);
             int bombColumn = (int) Math.floor(Math.random() * columnsAmount);
 
-            while (cells[bombRow][bombColumn] != null && cells[bombRow][bombColumn].getMapState() == 9) {
+            while (cells[bombRow][bombColumn] != null && cells[bombRow][bombColumn].hasBomb()) {
                 bombRow = (int) Math.floor(Math.random() * rowsAmount);
                 bombColumn = (int) Math.floor(Math.random() * columnsAmount);
             }
 
-            cells[bombRow][bombColumn] = new Cell( 9);
+            cells[bombRow][bombColumn] = new Cell(true, 0);
         }
     }
 
     private void setBombsAmount() {
         for (int i = 0; i < rowsAmount; i++) {
             for (int j = 0; j < columnsAmount; j++) {
-                if (cells[i][j] != null && cells[i][j].getMapState() == 9) {
-                    continue;
-                }
-
                 int bombsAmount = 0;
 
                 for (int k = -1; k < 2; k++) {
@@ -58,13 +55,17 @@ public class Map {
                             continue;
                         }
 
-                        if (cells[i + k][j + l] != null && cells[i + k][j + l].getMapState() == 9) {
+                        if (cells[i + k][j + l] != null && cells[i + k][j + l].hasBomb()) {
                             bombsAmount++;
                         }
                     }
                 }
 
-                cells[i][j] = new Cell(bombsAmount);
+                if (cells[i][j] == null) {
+                    cells[i][j] = new Cell(false, bombsAmount);
+                } else {
+                    cells[i][j].setBombsAmount(bombsAmount);
+                }
             }
         }
     }

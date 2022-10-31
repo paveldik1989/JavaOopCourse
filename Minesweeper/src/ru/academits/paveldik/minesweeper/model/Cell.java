@@ -2,12 +2,13 @@ package ru.academits.paveldik.minesweeper.model;
 
 public class Cell {
     private boolean isOpen;
+    private final boolean hasBomb;
+    private int bombsAmount;
+    private CellStatus status = CellStatus.CLOSED; // 0 просто закрытая, 1 - флаг (F), 2 - Бомба (B), 3 - Неверный флаг (W)
 
-    private final int mapState;
-    private int closedState; // 0 просто закрытая, 1 - флаг (F), 2 - Бомба (B), 3 - Неверный флаг (W)
-
-    public Cell(int mapStatus) {
-        this.mapState = mapStatus;
+    public Cell(boolean hasBomb, int bombsAmount) {
+        this.hasBomb = hasBomb;
+        this.bombsAmount = bombsAmount;
     }
 
     public boolean isOpen() {
@@ -18,76 +19,45 @@ public class Cell {
         isOpen = open;
     }
 
-    public int getMapState() {
-        return mapState;
+    public boolean hasBomb() {
+        return hasBomb;
     }
 
-    public int getClosedState() {
-        return closedState;
+    public int getBombsAmount() {
+        return bombsAmount;
     }
 
-    public void setClosedState(int closedState) {
-        this.closedState = closedState;
+    public void setBombsAmount(int bombsAmount) {
+        this.bombsAmount = bombsAmount;
+    }
+
+    public CellStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CellStatus status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
-        return Integer.toString(mapState);
+        return Integer.toString(bombsAmount);
     }
 
-    public String toStringGame() {
-        if (isOpen) {
-            if (mapState == 0) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/0.png";
-            }
-
-            if (mapState == 1) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/1.png";
-            }
-
-            if (mapState == 2) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/2.png";
-            }
-
-            if (mapState == 3) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/3.png";
-            }
-
-            if (mapState == 4) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/4.png";
-            }
-
-            if (mapState == 5) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/5.png";
-            }
-
-            if (mapState == 6) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/6.png";
-            }
-
-            if (mapState == 7) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/7.png";
-            }
-
-            if (mapState == 8) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/8.png";
-            }
-
-            return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/explosion.png";
-        } else {
-            if (closedState == 1) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/flag.png";
-            }
-
-            if (closedState == 2) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/bomb.png"; // Minesweeper/src/ru/academits/paveldik/minesweeper/
-            }
-
-            if (closedState == 3) {
-                return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/wrong_flag.png";
-            }
-
-            return "Minesweeper/src/ru/academits/paveldik/minesweeper/resources/closed.png";
-        }
+    public enum CellStatus {
+        CLOSED,
+        FLAG,
+        BOMB,
+        WRONG_FLAG,
+        EXPLOSION,
+        EMPTY,
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT
     }
 }

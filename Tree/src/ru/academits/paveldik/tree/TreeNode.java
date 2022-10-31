@@ -5,27 +5,27 @@ class TreeNode<E> {
     private TreeNode<E> leftChild;
     private TreeNode<E> rightChild;
 
-    TreeNode(E value) {
+    public TreeNode(E value) {
         this.value = value;
     }
 
-    E getValue() {
+    public E getValue() {
         return value;
     }
 
-    TreeNode<E> getLeftChild() {
+    public TreeNode<E> getLeftChild() {
         return leftChild;
     }
 
-    void setLeftChild(TreeNode<E> leftChild) {
+    public void setLeftChild(TreeNode<E> leftChild) {
         this.leftChild = leftChild;
     }
 
-    TreeNode<E> getRightChild() {
+    public TreeNode<E> getRightChild() {
         return rightChild;
     }
 
-    void setRightChild(TreeNode<E> rightChild) {
+    public void setRightChild(TreeNode<E> rightChild) {
         this.rightChild = rightChild;
     }
 }

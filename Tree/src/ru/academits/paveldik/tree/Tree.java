@@ -6,9 +6,10 @@ import java.util.function.Consumer;
 public class Tree<E> {
     private TreeNode<E> root;
     private int size;
-    private Comparator<E> comparator;
+    private final Comparator<E> comparator;
 
     public Tree() {
+        comparator = null;
     }
 
     public Tree(Comparator<E> comparator) {
@@ -16,6 +17,8 @@ public class Tree<E> {
     }
 
     public Tree(Collection<E> collection) {
+        comparator = null;
+
         for (E e : collection) {
             add(e);
         }
@@ -29,7 +32,11 @@ public class Tree<E> {
         }
     }
 
-    private int compareValues(E value1, E value2) {
+    private int compare(E value1, E value2) {
+        if (comparator != null) {
+            return comparator.compare(value1, value2);
+        }
+
         if (value1 == null && value2 == null) {
             return 0;
         }
@@ -42,12 +49,8 @@ public class Tree<E> {
             return 1;
         }
 
-        if (comparator == null) {
-            //noinspection unchecked
-            return ((Comparable<E>) value1).compareTo(value2); // Почему здесь нужно кастовать тип только в левой части?
-        } // Т.е. почему не так ((Comparable<E>)value1).compareTo((Comparable<E>)value2)
-
-        return comparator.compare(value1, value2);
+        //noinspection unchecked
+        return ((Comparable<E>) value1).compareTo(value2);
     }
 
     public int size() {
@@ -64,7 +67,7 @@ public class Tree<E> {
         TreeNode<E> currentNode = root;
 
         while (true) {
-            if (compareValues(value, currentNode.getValue()) < 0) {
+            if (compare(value, currentNode.getValue()) < 0) {
                 if (currentNode.getLeftChild() != null) {
                     currentNode = currentNode.getLeftChild();
                 } else {
@@ -89,7 +92,7 @@ public class Tree<E> {
             return false;
         }
 
-        if (compareValues(value, root.getValue()) == 0) {
+        if (compare(value, root.getValue()) == 0) {
             return true;
         }
 
@@ -105,13 +108,13 @@ public class Tree<E> {
         TreeNode<E> currentNodeParent = null;
 
         while (true) {
-            int compareValues = compareValues(value, currentNode.getValue());
+            int valuesComparisonResult = compare(value, currentNode.getValue());
 
-            if (compareValues == 0) {
+            if (valuesComparisonResult == 0) {
                 return currentNodeParent;
             }
 
-            if (compareValues < 0) {
+            if (valuesComparisonResult < 0) {
                 if (currentNode.getLeftChild() == null) {
                     return null;
                 }
@@ -192,16 +195,18 @@ public class Tree<E> {
 
         TreeNode<E> nodeToDeleteParent = getNodeParent(value);
         TreeNode<E> nodeToDelete;
+        boolean isLeftChild = false;
 
         if (nodeToDeleteParent == null) {
-            if (compareValues(value, root.getValue()) != 0) {
+            if (compare(value, root.getValue()) != 0) {
                 return false;
             }
 
             nodeToDelete = root;
         } else {
-            if (compareValues(value, nodeToDeleteParent.getValue()) < 0) {
+            if (compare(value, nodeToDeleteParent.getValue()) < 0) {
                 nodeToDelete = nodeToDeleteParent.getLeftChild();
+                isLeftChild = true;
             } else {
                 nodeToDelete = nodeToDeleteParent.getRightChild();
             }
@@ -209,7 +214,7 @@ public class Tree<E> {
 
         // Случай 1 - нет детей
         if (nodeToDelete.getRightChild() == null && nodeToDelete.getLeftChild() == null) {
-            linkNodeToParent(nodeToDeleteParent, null, value);
+            linkNodeToParent(nodeToDeleteParent, null, isLeftChild);
             size--;
             return true;
         }
@@ -224,7 +229,7 @@ public class Tree<E> {
                 replacementNode = nodeToDelete.getLeftChild();
             }
 
-            linkNodeToParent(nodeToDeleteParent, replacementNode, value);
+            linkNodeToParent(nodeToDeleteParent, replacementNode, isLeftChild);
             size--;
             return true;
         }
@@ -244,15 +249,15 @@ public class Tree<E> {
         }
 
         replacementNode.setLeftChild(nodeToDelete.getLeftChild());
-        linkNodeToParent(nodeToDeleteParent, replacementNode, value);
+        linkNodeToParent(nodeToDeleteParent, replacementNode, isLeftChild);
         size--;
         return true;
     }
 
-    private void linkNodeToParent(TreeNode<E> nodeToDeleteParent, TreeNode<E> replacementNode, E value) {
+    private void linkNodeToParent(TreeNode<E> nodeToDeleteParent, TreeNode<E> replacementNode, boolean hasRemovedLeftChild) {
         if (nodeToDeleteParent == null) {
             root = replacementNode;
-        } else if (compareValues(value, nodeToDeleteParent.getValue()) < 0) {
+        } else if (hasRemovedLeftChild) {
             nodeToDeleteParent.setLeftChild(replacementNode);
         } else {
             nodeToDeleteParent.setRightChild(replacementNode);

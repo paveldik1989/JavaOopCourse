@@ -33,7 +33,6 @@ public class View {
 
         frame = new JFrame("Minesweeper");
 
-
         JPanel gameField = new JPanel();
 
         JMenuBar menuBar = new JMenuBar();
@@ -82,7 +81,7 @@ public class View {
         closed = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/closed.png");
 
         gameField.setLayout(new GridLayout(rowsAmount, columnsAmount));
-        gameField.setSize(columnsAmount * CELL_SIZE, rowsAmount * CELL_SIZE);
+        gameField.setPreferredSize(new Dimension(columnsAmount * CELL_SIZE, rowsAmount * CELL_SIZE));
 
         buttons = new JButton[rowsAmount][columnsAmount];
 
@@ -99,9 +98,10 @@ public class View {
             }
         }
 
+
         frame.setLayout(new GridBagLayout());
+
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setSize(columnsAmount * CELL_SIZE, 200);
 
         GridBagConstraints constraints1 = new GridBagConstraints();
         constraints1.gridx = 0;
@@ -119,7 +119,7 @@ public class View {
         constraints2.gridheight = 1;
         constraints2.weightx = 1;
         constraints2.anchor = GridBagConstraints.CENTER;
-        panel.add(new JButton("Smile"), constraints2);
+        panel.add(new JButton("Flags"), constraints2);
 
         GridBagConstraints constraints3 = new GridBagConstraints();
         constraints3.gridx = 2;

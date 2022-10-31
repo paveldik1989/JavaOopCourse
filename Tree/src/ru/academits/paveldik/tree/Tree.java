@@ -108,13 +108,13 @@ public class Tree<E> {
         TreeNode<E> currentNodeParent = null;
 
         while (true) {
-            int valuesComparisonResult = compare(value, currentNode.getValue());
+            int comparisonResult = compare(value, currentNode.getValue());
 
-            if (valuesComparisonResult == 0) {
+            if (comparisonResult == 0) {
                 return currentNodeParent;
             }
 
-            if (valuesComparisonResult < 0) {
+            if (comparisonResult < 0) {
                 if (currentNode.getLeftChild() == null) {
                     return null;
                 }

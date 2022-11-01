@@ -95,15 +95,13 @@ public class ArrayList<E> implements List<E> {
     }
 
     private void enlargeCapacity() {
-        int newCapacity;
-
         if (elements.length == 0) {
-            newCapacity = DEFAULT_CAPACITY;
-        } else {
-            newCapacity = elements.length * 2;
+            //noinspection unchecked
+            elements = (E[]) new Object[DEFAULT_CAPACITY];
+            return;
         }
 
-        elements = Arrays.copyOf(elements, newCapacity);
+        elements = Arrays.copyOf(elements, elements.length * 2);
     }
 
     public void ensureCapacity(int minCapacity) {
@@ -198,7 +196,7 @@ public class ArrayList<E> implements List<E> {
             return;
         }
 
-        Arrays.fill(elements, 0, size - 1, null);
+        Arrays.fill(elements, 0, size, null); // Вот зачем было одну границу делать включительно, а вторую нет?
         size = 0;
         modCount++;
     }
@@ -340,7 +338,7 @@ public class ArrayList<E> implements List<E> {
         }
 
         if (index > size) {
-            throw new IndexOutOfBoundsException("Индекс должен может быть < размера списка. Индекс: "
+            throw new IndexOutOfBoundsException("Индекс не может быть > размера списка. Индекс: "
                     + index + ". Размер списка: " + size);
         }
     }

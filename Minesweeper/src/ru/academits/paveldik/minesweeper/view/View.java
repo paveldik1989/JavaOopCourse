@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 public class View {
     JButton[][] buttons;
     JFrame frame;
+    JButton flagsAmount = new JButton("0");
 
     ImageIcon empty;
     ImageIcon one;
@@ -98,7 +99,6 @@ public class View {
             }
         }
 
-
         frame.setLayout(new GridBagLayout());
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -110,7 +110,7 @@ public class View {
         constraints1.gridheight = 1;
         constraints1.weightx = 1;
         constraints1.anchor = GridBagConstraints.LINE_START;
-        panel.add(new JButton("Flags"), constraints1);
+        panel.add(flagsAmount, constraints1);
 
         GridBagConstraints constraints2 = new GridBagConstraints();
         constraints2.gridx = 1;
@@ -119,7 +119,7 @@ public class View {
         constraints2.gridheight = 1;
         constraints2.weightx = 1;
         constraints2.anchor = GridBagConstraints.CENTER;
-        panel.add(new JButton("Flags"), constraints2);
+        panel.add(new JButton("Smile"), constraints2);
 
         GridBagConstraints constraints3 = new GridBagConstraints();
         constraints3.gridx = 2;
@@ -153,6 +153,10 @@ public class View {
 
     public void addButtonListener(int rowIndex, int columnIndex, MouseAdapter actionListener) {
         buttons[rowIndex][columnIndex].addMouseListener(actionListener);
+    }
+
+    public void setFlagsAmount(int flagsAmount) {
+        this.flagsAmount.setText(Integer.toString(flagsAmount));
     }
 
     public void setEmpty(int rowIndex, int columnIndex) {

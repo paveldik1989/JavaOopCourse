@@ -16,9 +16,10 @@ public class Controller {
         this.game = game;
         this.view = view;
         this.map = game.getMap();
+        Cell[][] cells = map.getCells();
 
         int rowsAmount = map.getRowsAmount();
-        int columnsAmount = map.getRowsAmount();
+        int columnsAmount = map.getColumnsAmount();
         MouseAdapter[][] mouseAdapters = new MouseAdapter[rowsAmount][columnsAmount];
 
         for (int i = 0; i < rowsAmount; i++) {
@@ -30,8 +31,13 @@ public class Controller {
                     @Override
                     public void mouseClicked(MouseEvent mouseEvent) {
                         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+                            if(cells[rowIndex][columnIndex].getStatus() == Cell.CellStatus.FLAG){
+                                return;
+                            }
+
                             game.openCell(rowIndex, columnIndex);
                             updateButtonsIcons();
+                            view.setFlagsAmount(game.getFlagsAmount());
 
                             if (game.getGameState() == Game.GameState.WIN) {
                                 view.displayGameOver("You win!");
@@ -43,6 +49,7 @@ public class Controller {
                         } else if (mouseEvent.getButton() == MouseEvent.BUTTON2) {
                             game.openAround(rowIndex, columnIndex);
                             updateButtonsIcons();
+                            view.setFlagsAmount(game.getFlagsAmount());
 
                             if (game.getGameState() == Game.GameState.WIN) {
                                 view.displayGameOver("You win!");
@@ -54,6 +61,7 @@ public class Controller {
                         } else if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
                             game.putOrRemoveFlag(rowIndex, columnIndex);
                             updateButtonsIcons();
+                            view.setFlagsAmount(game.getFlagsAmount());
                         }
                     }
                 };
@@ -65,7 +73,7 @@ public class Controller {
 
     private void updateButtonsIcons() {
         int rowsAmount = map.getRowsAmount();
-        int columnsAmount = map.getRowsAmount();
+        int columnsAmount = map.getColumnsAmount();
         Cell[][] cells = map.getCells();
 
         for (int i = 0; i < rowsAmount; i++) {

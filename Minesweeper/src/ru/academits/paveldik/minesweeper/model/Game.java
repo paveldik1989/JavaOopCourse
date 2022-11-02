@@ -9,6 +9,7 @@ public class Game {
     private final Cell[][] cells;
 
     private int closedCellsAmount;
+    private int flagsAmount;
 
     private GameState gameState = GameState.IN_PROCESS;
 
@@ -32,11 +33,20 @@ public class Game {
         return gameState;
     }
 
+    public int getFlagsAmount() {
+        return flagsAmount;
+    }
+
     public void openCell(int rowIndex, int columnIndex) {
         Cell currentCell = cells[rowIndex][columnIndex];
 
         if (currentCell.isOpen()) {
             return;
+        }
+
+        if (currentCell.getStatus() == Cell.CellStatus.FLAG) {
+            flagsAmount--;
+            System.out.println(flagsAmount);
         }
 
         if (currentCell.hasBomb()) {
@@ -88,8 +98,10 @@ public class Game {
 
         if (cell.getStatus() == Cell.CellStatus.FLAG) {
             cell.setStatus(Cell.CellStatus.CLOSED);
+            flagsAmount--;
         } else {
             cell.setStatus(Cell.CellStatus.FLAG);
+            flagsAmount++;
         }
     }
 
@@ -100,7 +112,7 @@ public class Game {
             return;
         }
 
-        int flagsAmount = 0;
+        int flagsNearbyAmount = 0;
 
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
@@ -110,12 +122,12 @@ public class Game {
                 }
 
                 if (cells[rowIndex + i][columnIndex + j].getStatus() == Cell.CellStatus.FLAG) {
-                    flagsAmount++;
+                    flagsNearbyAmount++;
                 }
             }
         }
 
-        if (flagsAmount == cell.getBombsAmount()) {
+        if (flagsNearbyAmount == cell.getBombsAmount()) {
             for (int i = -1; i < 2; i++) {
                 for (int j = -1; j < 2; j++) {
                     if (i == 0 && j == 0 || rowIndex + i < 0 || rowIndex + i == rowsAmount || columnIndex + j < 0
@@ -140,8 +152,8 @@ public class Game {
     }
 
     public void showBombs() {
-        for (int i = 0; i < map.getRowsAmount(); i++) {
-            for (int j = 0; j < map.getRowsAmount(); j++) {
+        for (int i = 0; i < rowsAmount; i++) {
+            for (int j = 0; j < columnsAmount; j++) {
                 Cell cell = cells[i][j];
 
                 if (cell.isOpen()) {

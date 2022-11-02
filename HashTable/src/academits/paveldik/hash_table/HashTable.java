@@ -220,6 +220,10 @@ public class HashTable<E> implements Collection<E> {
             }
         }
 
+        if (isChanged) {
+            modCount++;
+        }
+
         return isChanged;
     }
 

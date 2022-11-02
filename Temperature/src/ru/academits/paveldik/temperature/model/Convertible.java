@@ -1,5 +1,5 @@
 package ru.academits.paveldik.temperature.model;
 
-public interface Convertable {
+public interface Convertible {
     double convert(double temperature, Scale scaleFrom, Scale scaleTo);
 }

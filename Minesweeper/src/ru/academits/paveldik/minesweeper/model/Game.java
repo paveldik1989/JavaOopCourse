@@ -9,7 +9,7 @@ public class Game {
     private final Cell[][] cells;
 
     private int closedCellsAmount;
-    private int flagsAmount;
+    private int remainingBombsAmount;
 
     private GameState gameState = GameState.IN_PROCESS;
 
@@ -17,6 +17,7 @@ public class Game {
         this.rowsAmount = rowsAmount;
         this.columnsAmount = columnsAmount;
         this.totalBombsAmount = totalBombsAmount;
+        remainingBombsAmount = totalBombsAmount;
 
         Map map = new Map(rowsAmount, columnsAmount, totalBombsAmount);
         this.map = map;
@@ -33,8 +34,8 @@ public class Game {
         return gameState;
     }
 
-    public int getFlagsAmount() {
-        return flagsAmount;
+    public int getRemainingBombsAmount() {
+        return remainingBombsAmount;
     }
 
     public int getTotalBombsAmount(){
@@ -49,8 +50,7 @@ public class Game {
         }
 
         if (currentCell.getStatus() == Cell.CellStatus.FLAG) {
-            flagsAmount--;
-            System.out.println(flagsAmount);
+            remainingBombsAmount++;
         }
 
         if (currentCell.hasBomb()) {
@@ -102,10 +102,10 @@ public class Game {
 
         if (cell.getStatus() == Cell.CellStatus.FLAG) {
             cell.setStatus(Cell.CellStatus.CLOSED);
-            flagsAmount--;
+            remainingBombsAmount++;
         } else {
             cell.setStatus(Cell.CellStatus.FLAG);
-            flagsAmount++;
+            remainingBombsAmount--;
         }
     }
 

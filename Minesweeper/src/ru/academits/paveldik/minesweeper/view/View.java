@@ -1,18 +1,36 @@
 package ru.academits.paveldik.minesweeper.view;
 
-import ru.academits.paveldik.minesweeper.model.Map;
+import ru.academits.paveldik.minesweeper.controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
-
+import java.awt.event.MouseEvent;
 
 public class View {
+    Controller controller;
+
+    final static int CELL_SIZE = 24;
+    int rowsAmount;
+    int columnsAmount;
+    int totalBombsAmount;
+
     JButton[][] buttons;
     JFrame frame;
     JLabel remainingBombsCounter;
     JLabel stopwatch;
     JButton smile;
+    JPanel gameField;
+
+    JMenuBar menuBar;
+    JMenu gameMenu;
+    JMenuItem newGame;
+    JCheckBoxMenuItem beginner;
+    JCheckBoxMenuItem intermediate;
+    JCheckBoxMenuItem expert;
+    JCheckBoxMenuItem custom;
+    JMenuItem highScores;
+    JMenuItem exit;
 
     ImageIcon smileInProcess;
     ImageIcon smileWin;
@@ -33,47 +51,74 @@ public class View {
     ImageIcon wrongFlag;
     ImageIcon closed;
 
-    public View(Map map) {
-        final int CELL_SIZE = 24;
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
 
-        int rowsAmount = map.getRowsAmount();
-        int columnsAmount = map.getColumnsAmount();
+    public void run() {
+        SwingUtilities.invokeLater(() -> {
+                    frame = new JFrame("Minesweeper");
 
-        frame = new JFrame("Minesweeper");
-        frame.setLayout(new GridBagLayout());
+                    initializeMenu();
+                    initializeIcons();
+                    initializeSmile();
+                    initializeGameField();
+                    addComponentsToFrame();
+                }
+        );
+    }
 
+    public void setRowsAmount(int rowsAmount) {
+        this.rowsAmount = rowsAmount;
+    }
 
+    public void setColumnsAmount(int columnsAmount) {
+        this.columnsAmount = columnsAmount;
+    }
 
-        JMenuBar menuBar = new JMenuBar();
+    public void setTotalBombsAmount(int totalBombsAmount) {
+        this.totalBombsAmount = totalBombsAmount;
+    }
+
+    public void initializeMenu() {
+        menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
 
-        JMenu game = new JMenu("Game");
-        menuBar.add(game);
+        gameMenu = new JMenu("Game");
+        menuBar.add(gameMenu);
 
-        JMenuItem newGame = new JMenuItem("New Game");
-        game.add(newGame);
-        game.add(new JSeparator());
+        JRadioButtonMenuItem beginner = new JRadioButtonMenuItem ("Beginner");
+        gameMenu.add(beginner);
+        beginner.addActionListener(event -> controller.setBeginner());
 
-        JCheckBoxMenuItem beginner = new JCheckBoxMenuItem("Beginner");
-        game.add(beginner);
+        JRadioButtonMenuItem  intermediate = new JRadioButtonMenuItem ("Intermediate");
+        gameMenu.add(intermediate);
+        intermediate.addActionListener(event -> controller.setIntermediate());
 
-        JCheckBoxMenuItem intermediate = new JCheckBoxMenuItem("Intermediate");
-        game.add(intermediate);
+        JRadioButtonMenuItem  expert = new JRadioButtonMenuItem ("Expert");
+        gameMenu.add(expert);
+        expert.addActionListener(event -> controller.setExpert());
 
-        JCheckBoxMenuItem expert = new JCheckBoxMenuItem("Expert");
-        game.add(expert);
+        JRadioButtonMenuItem  custom = new JRadioButtonMenuItem ("Custom");
+        gameMenu.add(custom);
+        custom.addActionListener(event -> controller.setCustom());
+        gameMenu.add(new JSeparator());
 
-        JCheckBoxMenuItem custom = new JCheckBoxMenuItem("Custom");
-        game.add(custom);
-        game.add(new JSeparator());
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(beginner);
+        buttonGroup.add(intermediate);
+        buttonGroup.add(expert);
+        buttonGroup.add(custom);
 
         JMenuItem highScores = new JMenuItem("High Scores");
-        game.add(highScores);
-        game.add(new JSeparator());
+        gameMenu.add(highScores);
+        gameMenu.add(new JSeparator());
 
         JMenuItem exit = new JMenuItem("Exit");
-        game.add(exit);
+        gameMenu.add(exit);
+    }
 
+    public void initializeIcons() {
         smileInProcess = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/in_process.png");
         smileWin = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/win.png");
         smileLost = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/lost.png");
@@ -92,8 +137,10 @@ public class View {
         bomb = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/bomb.png");
         wrongFlag = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/wrong_flag.png");
         closed = new ImageIcon("Minesweeper/src/ru/academits/paveldik/minesweeper/resources/closed.png");
+    }
 
-        JPanel gameField = new JPanel();
+    public void initializeGameField() {
+        gameField = new JPanel();
         gameField.setLayout(new GridLayout(rowsAmount, columnsAmount));
         gameField.setPreferredSize(new Dimension(columnsAmount * CELL_SIZE, rowsAmount * CELL_SIZE));
 
@@ -107,15 +154,35 @@ public class View {
                 buttons[i][j].setIcon(closed);
                 buttons[i][j].setBorderPainted(false);
                 buttons[i][j].setFocusPainted(false);
-
                 gameField.add(buttons[i][j]);
+
+                final int rowIndex = i;
+                final int columnIndex = j;
+
+                MouseAdapter mouseAdapter = new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+                            controller.leftClick(rowIndex, columnIndex);
+                        } else if (mouseEvent.getButton() == MouseEvent.BUTTON2) {
+                            controller.middleClick(rowIndex, columnIndex);
+                        } else if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
+                            controller.rightClick(rowIndex, columnIndex);
+                        }
+                    }
+                };
+
+                buttons[i][j].addMouseListener(mouseAdapter);
             }
         }
+    }
 
+    public void addComponentsToFrame() {
+        frame.setLayout(new GridBagLayout());
         JPanel panel = new JPanel(new GridBagLayout());
 
         remainingBombsCounter = new JLabel();
-        setRemainingBombsCounter(map.getTotalBombsAmount());
+        setRemainingBombsCounter(totalBombsAmount);
         remainingBombsCounter.setFont(new Font("Agency FB", Font.BOLD, 50));
         remainingBombsCounter.setPreferredSize(new Dimension(75, 56));
         remainingBombsCounter.setBackground(new Color(0, 0, 0));
@@ -123,15 +190,14 @@ public class View {
         remainingBombsCounter.setForeground(new Color(255, 0, 0));
 
         stopwatch = new JLabel();
-        setTimer(0);
+        setStopwatch(0);
         stopwatch.setFont(new Font("Agency FB", Font.BOLD, 50));
         stopwatch.setPreferredSize(new Dimension(75, 56));
         stopwatch.setBackground(new Color(0, 0, 0));
         stopwatch.setOpaque(true);
         stopwatch.setForeground(new Color(255, 0, 0));
 
-        smile = new JButton(smileInProcess);
-        smile.setPreferredSize(new Dimension(56,56));
+        smile.setPreferredSize(new Dimension(56, 56));
         smile.setFocusable(false);
         smile.setBorderPainted(false);
         smile.setFocusPainted(false);
@@ -184,9 +250,22 @@ public class View {
         frame.setLocationRelativeTo(null);
     }
 
-    public void addButtonListener(int rowIndex, int columnIndex, MouseAdapter actionListener) {
-        buttons[rowIndex][columnIndex].addMouseListener(actionListener);
+
+    public void initializeSmile() {
+        smile = new JButton(smileInProcess);
+
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+                    controller.restartGame();
+                }
+            }
+        };
+
+        smile.addMouseListener(mouseAdapter);
     }
+
 
     public void addSmileListener(MouseAdapter actionListener) {
         smile.addMouseListener(actionListener);
@@ -196,20 +275,19 @@ public class View {
         remainingBombsCounter.setText(String.format("%03d", flagsAmount));
     }
 
-    public void setTimer(int seconds) {
+    public void setStopwatch(int seconds) {
         stopwatch.setText(String.format("%03d", seconds));
     }
 
-
-    public void setSmileInProcess(){
+    public void setSmileInProcess() {
         smile.setIcon(smileInProcess);
     }
 
-    public void setSmileWin(){
+    public void setSmileWin() {
         smile.setIcon(smileWin);
     }
 
-    public void setSmileLost(){
+    public void setSmileLost() {
         smile.setIcon(smileLost);
     }
 
@@ -269,7 +347,11 @@ public class View {
         buttons[rowIndex][columnIndex].setIcon(closed);
     }
 
-    public void displayGameOver(String gameOverMessage) {
+    public void displayCustom(String gameOverMessage) {
         JOptionPane.showMessageDialog(frame, gameOverMessage);
+    }
+
+    public void closeFrame(){
+        frame.dispose();
     }
 }

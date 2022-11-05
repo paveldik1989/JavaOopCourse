@@ -30,6 +30,10 @@ public class Map {
         return columnsAmount;
     }
 
+    public int getTotalBombsAmount() {
+        return totalBombsAmount;
+    }
+
     private void addBombs() {
         for (int i = 0; i < totalBombsAmount; i++) {
             int bombRow = (int) Math.floor(Math.random() * rowsAmount);

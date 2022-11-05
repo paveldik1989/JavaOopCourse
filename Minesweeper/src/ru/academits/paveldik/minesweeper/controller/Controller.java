@@ -6,6 +6,8 @@ import ru.academits.paveldik.minesweeper.model.Game;
 import ru.academits.paveldik.minesweeper.view.View;
 
 import java.awt.event.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Controller {
     Game game;
@@ -16,10 +18,14 @@ public class Controller {
         this.game = game;
         this.view = view;
         this.map = game.getMap();
+
+        final boolean[] isStarted = {false};
         Cell[][] cells = map.getCells();
 
         int rowsAmount = map.getRowsAmount();
         int columnsAmount = map.getColumnsAmount();
+
+        Timer timer = new Timer();
         MouseAdapter[][] mouseAdapters = new MouseAdapter[rowsAmount][columnsAmount];
 
         for (int i = 0; i < rowsAmount; i++) {
@@ -27,41 +33,62 @@ public class Controller {
                 final int rowIndex = i;
                 final int columnIndex = j;
 
-                mouseAdapters[i][j] = new MouseAdapter() { // Не понятно как сделать через лямбду
+                mouseAdapters[i][j] = new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent mouseEvent) {
                         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-                            if(cells[rowIndex][columnIndex].getStatus() == Cell.CellStatus.FLAG){
+                            if (!isStarted[0]){
+                                isStarted[0] = true;
+
+                                timer.scheduleAtFixedRate(new TimerTask() {
+                                    int seconds = 0;
+
+                                    public void run() {
+                                        view.setTimer(seconds);
+                                        seconds++;
+                                    }
+                                }, 0, 1000);
+                            }
+
+                            if (cells[rowIndex][columnIndex].getStatus() == Cell.CellStatus.FLAG) {
                                 return;
                             }
 
                             game.openCell(rowIndex, columnIndex);
                             updateButtonsIcons();
-                            view.setFlagsAmount(game.getFlagsAmount());
+                            view.setRemainingBombsCounter(game.getTotalBombsAmount() - game.getFlagsAmount());
 
                             if (game.getGameState() == Game.GameState.WIN) {
+                                timer.cancel();
+                                view.setSmileWin();
                                 view.displayGameOver("You win!");
                             }
 
                             if (game.getGameState() == Game.GameState.LOST) {
+                                timer.cancel();
+                                view.setSmileLost();
                                 view.displayGameOver("Game over. You lost, sucker!");
                             }
                         } else if (mouseEvent.getButton() == MouseEvent.BUTTON2) {
                             game.openAround(rowIndex, columnIndex);
                             updateButtonsIcons();
-                            view.setFlagsAmount(game.getFlagsAmount());
+                            view.setRemainingBombsCounter(game.getTotalBombsAmount() - game.getFlagsAmount());
 
                             if (game.getGameState() == Game.GameState.WIN) {
+                                timer.cancel();
+                                view.setSmileWin();
                                 view.displayGameOver("You win!");
                             }
 
                             if (game.getGameState() == Game.GameState.LOST) {
+                                timer.cancel();
+                                view.setSmileLost();
                                 view.displayGameOver("Game over. You lost, sucker!");
                             }
                         } else if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
                             game.putOrRemoveFlag(rowIndex, columnIndex);
                             updateButtonsIcons();
-                            view.setFlagsAmount(game.getFlagsAmount());
+                            view.setRemainingBombsCounter(game.getTotalBombsAmount() - game.getFlagsAmount());
                         }
                     }
                 };

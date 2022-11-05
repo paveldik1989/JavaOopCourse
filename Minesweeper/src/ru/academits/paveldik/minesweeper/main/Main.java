@@ -6,8 +6,8 @@ import ru.academits.paveldik.minesweeper.view.View;
 
 public class Main {
     public static void main(String[] args) {
-        int rowsAmount = 3;
-        int columnsAmount = 50;
+        int rowsAmount = 30;
+        int columnsAmount = 30;
         int bombsAmount = 10;
 
         Game game = new Game(rowsAmount, columnsAmount, bombsAmount);

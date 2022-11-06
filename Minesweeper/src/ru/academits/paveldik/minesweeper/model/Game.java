@@ -38,10 +38,6 @@ public class Game {
         return remainingBombsAmount;
     }
 
-    public int getTotalBombsAmount(){
-        return totalBombsAmount;
-    }
-
     public void openCell(int rowIndex, int columnIndex) {
         Cell currentCell = cells[rowIndex][columnIndex];
 

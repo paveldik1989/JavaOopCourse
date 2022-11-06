@@ -1,0 +1,5 @@
+40 Игрок
+52 Dik Pavel
+900 Pavel Dik
+901 Test1
+902 Test2

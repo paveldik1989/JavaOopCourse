@@ -1,18 +1,23 @@
 package ru.academits.paveldik.minesweeper.controller;
 
-import ru.academits.paveldik.minesweeper.model.Cell;
-import ru.academits.paveldik.minesweeper.model.Map;
-import ru.academits.paveldik.minesweeper.model.Game;
+import ru.academits.paveldik.minesweeper.model.*;
+import ru.academits.paveldik.minesweeper.model.Record;
 import ru.academits.paveldik.minesweeper.view.View;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static ru.academits.paveldik.minesweeper.model.RecordTable.GameDifficulty;
 
 public class Controller {
     public static final int DEFAULT_ROWS_AMOUNT = 9;
     public static final int DEFAULT_COLUMNS_AMOUNT = 9;
     public static final int DEFAULT_TOTAL_BOMBS_AMOUNT = 10;
     int gameDuration = 0;
+    GameDifficulty gameDifficulty = GameDifficulty.BEGINNER;
+    RecordTable recordTable;
+
 
     Game game;
     View view;
@@ -21,7 +26,10 @@ public class Controller {
     Timer timer = new Timer();
     boolean isStarted = false;
 
-    public Controller(View view) {
+    public Controller(View view, RecordTable recordTable) {
+        this.recordTable = recordTable;
+
+
         this.view = view;
         game = new Game(DEFAULT_ROWS_AMOUNT, DEFAULT_COLUMNS_AMOUNT, DEFAULT_TOTAL_BOMBS_AMOUNT);
         map = game.getMap();
@@ -73,11 +81,18 @@ public class Controller {
         if (game.getGameState() == Game.GameState.WIN) {
             timer.cancel();
             view.setSmileWin();
+            view.removeMouseAdapters();
+            ArrayList<Record> records = getRecords(gameDifficulty);
+
+            if (records == null || records.isEmpty() || gameDuration < records.get(0).time()) {
+                view.displayNewRecord();
+            }
         }
 
         if (game.getGameState() == Game.GameState.LOST) {
             timer.cancel();
             view.setSmileLost();
+            view.removeMouseAdapters();
         }
     }
 
@@ -100,35 +115,27 @@ public class Controller {
     }
 
     public void restartGame() {
-        timer.cancel();
-        timer = new Timer();
-        gameDuration = 0;
-        isStarted = false;
-
-        game = new Game(map.getRowsAmount(), map.getColumnsAmount(), map.getTotalBombsAmount());
-        map = game.getMap();
-        cells = map.getCells();
-
-        updateGameField();
-        view.setStopwatch(0);
-        view.setRemainingBombsCounter(game.getRemainingBombsAmount());
-        view.setSmileInProcess();
+        newGame(map.getRowsAmount(), map.getColumnsAmount(), map.getTotalBombsAmount());
     }
 
-    public void setBeginner(){
+    public void setBeginner() {
+        gameDifficulty = GameDifficulty.BEGINNER;
         newGame(DEFAULT_ROWS_AMOUNT, DEFAULT_COLUMNS_AMOUNT, DEFAULT_TOTAL_BOMBS_AMOUNT);
     }
 
-    public void setIntermediate(){
+    public void setIntermediate() {
+        gameDifficulty = GameDifficulty.INTERMEDIATE;
         newGame(16, 16, 40);
     }
 
-    public void setExpert(){
+    public void setExpert() {
+        gameDifficulty = GameDifficulty.EXPERT;
         newGame(16, 30, 99);
     }
 
-    public void setCustom(){
-       view.displayCustom("Введите чето");
+    public void setCustom() {
+        gameDifficulty = GameDifficulty.CUSTOM; // TODO Возможно надо не здесь
+        view.displayCustom();
     }
 
     public void updateGameField() {
@@ -156,5 +163,13 @@ public class Controller {
                 }
             }
         }
+    }
+
+    public ArrayList<Record> getRecords(GameDifficulty gameDifficulty) {
+        return recordTable.getRecords(gameDifficulty);
+    }
+
+    public void setRecord(String name) {
+        recordTable.setRecord(gameDuration, name, gameDifficulty);
     }
 }
